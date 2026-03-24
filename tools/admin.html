@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>レポート追加ツール｜店舗視察レポート</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue-dark: #1e3a8a; --blue-main: #1a56db; --blue-mid: #3b82f6;
+      --blue-light: #dbeafe; --blue-pale: #eff6ff;
+      --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
+      --gray-400: #94a3b8; --gray-500: #64748b; --gray-700: #334155; --gray-900: #0f172a;
+      --green: #059669; --green-pale: #ecfdf5; --red: #dc2626;
+      --radius: 12px;
+    }
+    html, body { min-height: 100vh; font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background: var(--gray-50); color: var(--gray-900); -webkit-font-smoothing: antialiased; }
+
+    /* ── HEADER ── */
+    .app-header { background: linear-gradient(90deg, var(--blue-dark), var(--blue-main)); color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.2); position: sticky; top: 0; z-index: 30; }
+    .btn-back-home { background: rgba(255,255,255,.18); border: none; color: #fff; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; flex-shrink: 0; }
+    .header-title { font-size: .95rem; font-weight: 700; flex: 1; }
+
+    /* ── MAIN ── */
+    .main { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+
+    /* ── STEP INDICATORS ── */
+    .steps { display: flex; background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 28px; }
+    .step { flex: 1; padding: 13px 8px; text-align: center; font-size: .75rem; font-weight: 600; color: var(--gray-400); border-right: 1px solid var(--gray-200); transition: all .2s; }
+    .step:last-child { border-right: none; }
+    .step .sn { display: block; font-size: .65rem; opacity: .7; margin-bottom: 3px; }
+    .step.active { background: var(--blue-pale); color: var(--blue-main); }
+    .step.done { background: var(--green-pale); color: var(--green); }
+
+    /* ── CARDS ── */
+    .card { background: #fff; border-radius: var(--radius); padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 18px; }
+    .card-title { font-size: .95rem; font-weight: 700; color: var(--blue-dark); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--blue-light); display: flex; align-items: center; gap: 8px; }
+
+    /* ── FORMS ── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .form-row.c1 { grid-template-columns: 1fr; }
+    .form-row.c3 { grid-template-columns: 1fr 1fr 1fr; }
+    .fg { display: flex; flex-direction: column; gap: 5px; }
+    .fl { font-size: .78rem; font-weight: 600; color: var(--gray-700); }
+    .fl .hint { font-weight: 400; color: var(--gray-400); margin-left: 5px; font-size: .72rem; }
+    .fi, .fta { padding: 9px 12px; border: 1.5px solid var(--gray-200); border-radius: 8px; font-size: .88rem; font-family: inherit; outline: none; transition: border-color .2s; background: var(--gray-50); color: var(--gray-900); width: 100%; }
+    .fi:focus, .fta:focus { border-color: var(--blue-main); background: #fff; }
+    .fta { resize: vertical; min-height: 72px; }
+
+    /* ── BUTTONS ── */
+    .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: .88rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: opacity .15s; }
+    .btn:active { opacity: .8; }
+    .btn-primary { background: var(--blue-main); color: #fff; }
+    .btn-secondary { background: var(--gray-100); color: var(--gray-700); }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-sm { padding: 6px 12px; font-size: .78rem; }
+    .btn-danger { background: #fef2f2; color: var(--red); border: 1.5px solid #fecaca; }
+
+    /* ── UPLOAD ZONE ── */
+    .upload-zone { border: 2.5px dashed var(--gray-200); border-radius: var(--radius); padding: 44px 24px; text-align: center; cursor: pointer; transition: all .2s; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: var(--blue-main); background: var(--blue-pale); }
+    .upload-icon { font-size: 2.8rem; margin-bottom: 10px; }
+    .upload-text { font-size: .88rem; color: var(--gray-500); }
+    .upload-text strong { color: var(--blue-main); }
+
+    /* ── ACCESS BANNER ── */
+    .access-banner { background: var(--blue-pale); border: 1.5px solid var(--blue-light); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .access-banner.granted { background: var(--green-pale); border-color: #a7f3d0; }
+    .access-icon { font-size: 1.6rem; flex-shrink: 0; }
+    .access-text { font-size: .83rem; flex: 1; line-height: 1.5; }
+
+    /* ── PAGE GRID ── */
+    .page-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+    .page-thumb { position: relative; border: 2.5px solid var(--gray-200); border-radius: 8px; overflow: hidden; cursor: pointer; transition: all .15s; background: #fff; }
+    .page-thumb.selected { border-color: var(--blue-main); box-shadow: 0 0 0 1px var(--blue-main); }
+    .page-thumb.excluded { opacity: .38; }
+    .page-thumb canvas { width: 100%; height: auto; display: block; }
+    .page-thumb-bar { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,.62); color: #fff; font-size: .68rem; padding: 4px 7px; display: flex; justify-content: space-between; align-items: center; gap: 4px; }
+    .pt-badge { border-radius: 4px; padding: 2px 6px; font-size: .63rem; font-weight: 700; background: var(--blue-main); flex-shrink: 0; }
+    .pt-badge.summary { background: var(--green); }
+    .pt-badge.excl { background: var(--red); }
+    .pt-check { position: absolute; top: 7px; right: 7px; width: 20px; height: 20px; border-radius: 50%; background: var(--blue-main); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; }
+    .page-thumb.excluded .pt-check { background: var(--red); }
+    .page-hint { font-size: .82rem; color: var(--gray-500); margin-bottom: 14px; line-height: 1.6; }
+
+    /* ── STORE FORMS ── */
+    .store-card { border: 1.5px solid var(--gray-200); border-radius: 10px; padding: 18px; margin-bottom: 14px; }
+    .store-card-hd { font-size: .88rem; font-weight: 700; color: var(--blue-main); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+    .store-preview-wrap { display: grid; grid-template-columns: 120px 1fr; gap: 14px; margin-bottom: 14px; }
+    .store-preview-img { width: 100%; border-radius: 6px; border: 1px solid var(--gray-200); }
+
+    /* ── NAV ROW ── */
+    .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; }
+
+    /* ── PROGRESS OVERLAY ── */
+    .progress-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.48); display: none; align-items: center; justify-content: center; z-index: 100; }
+    .progress-overlay.show { display: flex; }
+    .progress-box { background: #fff; border-radius: var(--radius); padding: 30px; text-align: center; min-width: 260px; }
+    .progress-title { font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
+    .progress-msg { font-size: .82rem; color: var(--gray-500); }
+    .progress-spin { font-size: 2rem; margin-bottom: 12px; animation: spin 1.2s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── SUCCESS ── */
+    .success-card { text-align: center; padding: 36px 24px; }
+    .success-icon { font-size: 3.2rem; margin-bottom: 14px; }
+    .success-title { font-size: 1.25rem; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+    .success-msg { font-size: .85rem; color: var(--gray-500); line-height: 1.7; margin-bottom: 24px; }
+    .success-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── SCREEN VISIBILITY ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    @media (max-width: 580px) {
+      .form-row { grid-template-columns: 1fr; }
+      .form-row.c3 { grid-template-columns: 1fr; }
+      .store-preview-wrap { grid-template-columns: 1fr; }
+      .steps .sn { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <a href="../index.html" class="btn-back-home" title="サイトに戻る">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+  </a>
+  <div class="header-title">📋 レポート追加ツール</div>
+</header>
+
+<div class="main">
+
+  <!-- ── STEP INDICATORS ── -->
+  <div class="steps">
+    <div class="step active" id="si1"><span class="sn">STEP 1</span>PDF読込</div>
+    <div class="step" id="si2"><span class="sn">STEP 2</span>ページ選択</div>
+    <div class="step" id="si3"><span class="sn">STEP 3</span>基本情報</div>
+    <div class="step" id="si4"><span class="sn">STEP 4</span>店舗情報</div>
+    <div class="step" id="si5"><span class="sn">STEP 5</span>完了</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 1 : PDF アップロード
+  ══════════════════════════════════════════ -->
+  <div class="screen active" id="sc1">
+
+    <!-- フォルダアクセス -->
+    <div class="card">
+      <div class="card-title">📂 プロジェクトフォルダへのアクセス</div>
+      <div class="access-banner" id="access-banner">
+        <div class="access-icon">🔒</div>
+        <div class="access-text">
+          <strong>ファイルを自動保存するには</strong>、プロジェクトフォルダへのアクセスを許可してください。<br>
+          <small>スキップした場合は画像ファイルを個別にダウンロードします。</small>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btn-grant">フォルダを選択</button>
+      </div>
+    </div>
+
+    <!-- PDF アップロード -->
+    <div class="card">
+      <div class="card-title">📄 PDFファイルの読み込み</div>
+      <div class="upload-zone" id="upload-zone">
+        <div class="upload-icon">📄</div>
+        <div class="upload-text">
+          <strong>クリックしてPDFを選択</strong>、またはここにドラッグ&ドロップ
+        </div>
+        <input type="file" id="pdf-input" accept=".pdf" style="display:none">
+      </div>
+      <div id="pdf-info" style="display:none; margin-top:14px; padding:12px 14px; background:var(--green-pale); border-radius:8px; font-size:.83rem; color:#065f46;"></div>
+    </div>
+
+    <div class="nav-row">
+      <div></div>
+      <button class="btn btn-primary" id="btn-1to2" disabled>次へ　→　ページ選択</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 2 : ページ選択
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="sc2">
+    <div class="card">
+      <div class="card-title">🖼️ 含めるページを選択</div>
+      <p class="page-hint">
+        クリックでページを <strong>含める／除外</strong> に切り替えられます。<br>
+        地図ページなど不要なページは除外（グレーアウト）してください。<br>
+        先頭のページがサマリーページ、2ページ目以降が各店舗ページになります。
+      </p>
+      <div class="page-grid" id="page-grid"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" id="btn-2back">← 戻る</button>
+      <button class="btn btn-primary" id="btn-2to3">次へ　→　基本情報</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 3 : 基本情報
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="sc3">
+    <div class="card">
+      <div class="card-title">📝 報告書の基本情報</div>
+
+      <div class="form-row">
+        <div class="fg">
+          <label class="fl">作成者名 <span class="hint">例: 山田太郎</span></label>
+          <input type="text" class="fi" id="f-author" placeholder="山田太郎">
+        </div>
+        <div class="fg">
+          <label class="fl">部署名 <span class="hint">例: 企画課</span></label>
+          <input type="text" class="fi" id="f-dept" placeholder="企画課">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="fg">
+          <label class="fl">視察日</label>
+          <input type="date" class="fi" id="f-date">
+        </div>
+        <div class="fg">
+          <label class="fl">表示用の日付 <span class="hint">例: 2026年3月15日</span></label>
+          <input type="text" class="fi" id="f-datelabel" placeholder="2026年3月15日">
+        </div>
+      </div>
+
+      <div class="form-row c1">
+        <div class="fg">
+          <label class="fl">エリア・タイトル <span class="hint">例: 関東（千葉・東京）出張報告書</span></label>
+          <input type="text" class="fi" id="f-area" placeholder="関東（千葉・東京）出張報告書">
+        </div>
+      </div>
+
+      <div class="form-row c1">
+        <div class="fg">
+          <label class="fl">視察目的 <span class="hint">1行1目的で入力</span></label>
+          <textarea class="fta" id="f-purpose" rows="3" placeholder="各社のPB展開を調査する&#10;母の日カタログを入手する"></textarea>
+        </div>
+      </div>
+
+      <div class="form-row c1">
+        <div class="fg">
+          <label class="fl">所感・まとめ</label>
+          <textarea class="fta" id="f-impression" rows="4" placeholder="全体的な所感をここに記入..."></textarea>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="fg">
+          <label class="fl">タグ <span class="hint">カンマ区切り、例: 節分, POP, バレンタイン</span></label>
+          <input type="text" class="fi" id="f-tags" placeholder="節分, POP, バレンタイン">
+        </div>
+        <div class="fg">
+          <label class="fl">報告書ID <span class="hint">フォルダ名（英数字・ハイフン推奨）</span></label>
+          <input type="text" class="fi" id="f-id" placeholder="202603-yamada">
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" id="btn-3back">← 戻る</button>
+      <button class="btn btn-primary" id="btn-3to4">次へ　→　店舗情報</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 4 : 店舗情報
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="sc4">
+    <div class="card">
+      <div class="card-title">🏪 店舗情報の入力</div>
+      <p class="page-hint" style="margin-bottom:18px;">
+        各ページに対応する店舗情報を入力してください。<br>
+        ページ1はサマリー（表紙）として扱われます。
+      </p>
+      <div id="store-forms"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" id="btn-4back">← 戻る</button>
+      <button class="btn btn-success" id="btn-save">
+        <span id="save-btn-label">💾　保存する</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       STEP 5 : 完了
+  ══════════════════════════════════════════ -->
+  <div class="screen" id="sc5">
+    <div class="card success-card">
+      <div class="success-icon">✅</div>
+      <div class="success-title">保存完了！</div>
+      <div class="success-msg" id="success-msg"></div>
+      <div class="success-btns">
+        <a href="../index.html" class="btn btn-primary">サイトで確認する →</a>
+        <button class="btn btn-secondary" id="btn-another">別のPDFを追加する</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- .main -->
+
+<!-- ── プログレスオーバーレイ ── -->
+<div class="progress-overlay" id="prog-overlay">
+  <div class="progress-box">
+    <div class="progress-spin">⚙️</div>
+    <div class="progress-title" id="prog-title">処理中...</div>
+    <div class="progress-msg" id="prog-msg"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     JavaScript
+════════════════════════════════════════════════ -->
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ─── State ──────────────────────────────────────
+let S = {
+  dirHandle: null,      // FileSystemDirectoryHandle
+  pdfDoc: null,
+  totalPages: 0,
+  included: [],         // 含めるPDFページ番号(1始まり)の配列
+  thumbCanvases: {},    // pageNum → canvas(低解像度)
+  reportId: '',
+  basic: {},
+  stores: [],
+};
+
+// ─── Step navigation ─────────────────────────────
+let curStep = 1;
+function goStep(n) {
+  document.getElementById(`sc${curStep}`).classList.remove('active');
+  updateStepUI(curStep, 'done');
+  curStep = n;
+  document.getElementById(`sc${n}`).classList.add('active');
+  updateStepUI(n, 'active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function updateStepUI(n, cls) {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById(`si${i}`);
+    el.classList.remove('active', 'done');
+  }
+  for (let i = 1; i < curStep; i++) document.getElementById(`si${i}`).classList.add('done');
+  document.getElementById(`si${curStep}`).classList.add('active');
+}
+
+// ─── Progress ────────────────────────────────────
+function showProg(t, m) {
+  document.getElementById('prog-overlay').classList.add('show');
+  document.getElementById('prog-title').textContent = t;
+  document.getElementById('prog-msg').textContent = m || '';
+}
+function updProg(t, m) {
+  document.getElementById('prog-title').textContent = t;
+  document.getElementById('prog-msg').textContent = m || '';
+}
+function hideProg() { document.getElementById('prog-overlay').classList.remove('show'); }
+
+// ═══════════════════════════════════════════════
+// STEP 1 : フォルダアクセス & PDF読み込み
+// ═══════════════════════════════════════════════
+document.getElementById('btn-grant').addEventListener('click', async () => {
+  try {
+    const h = await window.showDirectoryPicker({ mode: 'readwrite' });
+    S.dirHandle = h;
+    const banner = document.getElementById('access-banner');
+    banner.classList.add('granted');
+    banner.querySelector('.access-icon').textContent = '✅';
+    banner.querySelector('.access-text').innerHTML =
+      `フォルダ「<strong>${h.name}</strong>」へのアクセスが許可されました。ファイルは自動保存されます。`;
+    document.getElementById('btn-grant').textContent = '再選択';
+  } catch (e) {
+    if (e.name !== 'AbortError') alert('アクセスに失敗しました: ' + e.message);
+  }
+});
+
+const uploadZone = document.getElementById('upload-zone');
+const pdfInput  = document.getElementById('pdf-input');
+uploadZone.addEventListener('click', () => pdfInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f?.type === 'application/pdf') loadPDF(f);
+});
+pdfInput.addEventListener('change', e => { if (e.target.files[0]) loadPDF(e.target.files[0]); });
+
+async function loadPDF(file) {
+  showProg('PDFを読み込み中...', file.name);
+  try {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    S.pdfDoc      = pdf;
+    S.totalPages  = pdf.numPages;
+    S.included    = Array.from({ length: pdf.numPages }, (_, i) => i + 1);
+    S.pdfFileName = file.name;
+
+    const info = document.getElementById('pdf-info');
+    info.style.display = 'block';
+    info.textContent = `✅ 「${file.name}」を読み込みました（${pdf.numPages} ページ）`;
+    document.getElementById('btn-1to2').disabled = false;
+    hideProg();
+  } catch (e) {
+    hideProg(); alert('PDF読み込みエラー: ' + e.message);
+  }
+}
+
+document.getElementById('btn-1to2').addEventListener('click', async () => {
+  await renderThumbs();
+  goStep(2);
+});
+
+// ═══════════════════════════════════════════════
+// STEP 2 : ページ選択
+// ═══════════════════════════════════════════════
+async function renderThumbs() {
+  showProg('ページをプレビュー中...', '');
+  const grid = document.getElementById('page-grid');
+  grid.innerHTML = '';
+  S.thumbCanvases = {};
+
+  for (let p = 1; p <= S.totalPages; p++) {
+    updProg('ページをプレビュー中...', `${p} / ${S.totalPages}`);
+    const page     = await S.pdfDoc.getPage(p);
+    const viewport = page.getViewport({ scale: 0.35 });
+    const canvas   = document.createElement('canvas');
+    canvas.width   = viewport.width;
+    canvas.height  = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    S.thumbCanvases[p] = canvas;
+
+    const thumb = document.createElement('div');
+    thumb.className = 'page-thumb selected';
+    thumb.dataset.page = p;
+    thumb.appendChild(canvas.cloneNode(true));
+
+    // ラベルバー
+    const bar   = document.createElement('div');
+    bar.className = 'page-thumb-bar';
+    const lbl   = document.createElement('span');
+    lbl.textContent = `P${p}`;
+    const badge = document.createElement('span');
+    badge.className = p === 1 ? 'pt-badge summary' : 'pt-badge';
+    badge.textContent = p === 1 ? 'サマリー' : `店舗`;
+    badge.dataset.role = p === 1 ? 'summary' : 'store';
+    bar.append(lbl, badge);
+    thumb.appendChild(bar);
+
+    // チェックマーク
+    const chk = document.createElement('div');
+    chk.className = 'pt-check'; chk.textContent = '✓';
+    thumb.appendChild(chk);
+
+    thumb.addEventListener('click', () => toggleThumb(thumb, p));
+    grid.appendChild(thumb);
+  }
+  refreshBadges();
+  hideProg();
+}
+
+function toggleThumb(thumb, p) {
+  const on = S.included.includes(p);
+  if (on) {
+    S.included = S.included.filter(x => x !== p);
+    thumb.classList.replace('selected', 'excluded');
+    thumb.querySelector('.pt-check').textContent = '✕';
+    const b = thumb.querySelector('.pt-badge');
+    b.className = 'pt-badge excl'; b.textContent = '除外';
+  } else {
+    S.included.push(p);
+    S.included.sort((a, b) => a - b);
+    thumb.classList.replace('excluded', 'selected');
+    thumb.querySelector('.pt-check').textContent = '✓';
+  }
+  refreshBadges();
+}
+
+function refreshBadges() {
+  const inc = [...S.included].sort((a, b) => a - b);
+  document.querySelectorAll('.page-thumb').forEach(thumb => {
+    const p = +thumb.dataset.page;
+    if (!inc.includes(p)) return;
+    const pos = inc.indexOf(p) + 1;
+    const b = thumb.querySelector('.pt-badge');
+    if (b.classList.contains('excl')) return;
+    if (pos === 1) { b.className = 'pt-badge summary'; b.textContent = 'サマリー'; }
+    else           { b.className = 'pt-badge';          b.textContent = `店舗 ${pos - 1}`; }
+  });
+}
+
+document.getElementById('btn-2back').addEventListener('click', () => goStep(1));
+document.getElementById('btn-2to3').addEventListener('click', () => {
+  if (S.included.length < 1) { alert('最低1ページ選択してください。'); return; }
+  initBasicForm(); goStep(3);
+});
+
+// ═══════════════════════════════════════════════
+// STEP 3 : 基本情報
+// ═══════════════════════════════════════════════
+function initBasicForm() {
+  if (!document.getElementById('f-date').value) {
+    const t = new Date();
+    document.getElementById('f-date').value = t.toISOString().split('T')[0];
+    document.getElementById('f-datelabel').value =
+      `${t.getFullYear()}年${t.getMonth()+1}月${t.getDate()}日`;
+  }
+}
+
+document.getElementById('f-date').addEventListener('change', e => {
+  const d = new Date(e.target.value + 'T00:00:00');
+  if (!isNaN(d)) {
+    document.getElementById('f-datelabel').value =
+      `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+  }
+  autoId();
+});
+document.getElementById('f-author').addEventListener('input', autoId);
+
+function autoId() {
+  const ym  = (document.getElementById('f-date').value || '').replace(/-/g, '').slice(0, 6);
+  const au  = document.getElementById('f-author').value.trim().slice(0, 8).replace(/\s+/g, '');
+  if (ym && au) document.getElementById('f-id').value = `${ym}-${au}`;
+}
+
+document.getElementById('btn-3back').addEventListener('click', () => goStep(2));
+document.getElementById('btn-3to4').addEventListener('click', () => {
+  const author = document.getElementById('f-author').value.trim();
+  const date   = document.getElementById('f-date').value;
+  const area   = document.getElementById('f-area').value.trim();
+  const id     = document.getElementById('f-id').value.trim();
+  if (!author || !date || !area || !id) {
+    alert('作成者名・視察日・エリア・報告書IDは必須です。'); return;
+  }
+  buildStoreForms(); goStep(4);
+});
+
+// ═══════════════════════════════════════════════
+// STEP 4 : 店舗情報
+// ═══════════════════════════════════════════════
+function buildStoreForms() {
+  const container = document.getElementById('store-forms');
+  container.innerHTML = '';
+  const storePDFPages = S.included.slice(1); // summary を除く
+
+  if (storePDFPages.length === 0) {
+    container.innerHTML = '<p style="color:var(--gray-500);font-size:.85rem;">サマリーページのみです。</p>';
+    return;
+  }
+
+  storePDFPages.forEach((pdfP, idx) => {
+    const storeN   = idx + 1;
+    const savedPg  = idx + 2;   // page_2.jpg, page_3.jpg ...
+    const canvas   = S.thumbCanvases[pdfP];
+    const previewSrc = thumbToDataURL(canvas);
+
+    const div = document.createElement('div');
+    div.className = 'store-card';
+    div.dataset.savedPage = savedPg;
+    div.innerHTML = `
+      <div class="store-card-hd">
+        <span>🏪 店舗 ${storeN}　（page_${savedPg}.jpg）</span>
+      </div>
+      <div class="store-preview-wrap">
+        <div>
+          <img src="${previewSrc}" class="store-preview-img" alt="P${pdfP}">
+          <p style="font-size:.65rem;color:var(--gray-400);text-align:center;margin-top:4px;">PDFページ ${pdfP}</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="fg">
+            <label class="fl">店舗名 <span style="color:var(--red)">*</span></label>
+            <input type="text" class="fi s-name" placeholder="イオン広島店">
+          </div>
+          <div class="fg">
+            <label class="fl">視察時間 <span class="hint">例: 10:00〜11:00</span></label>
+            <input type="text" class="fi s-time" placeholder="10:00〜11:00">
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg">
+          <label class="fl">住所</label>
+          <input type="text" class="fi s-addr" placeholder="広島県広島市西区">
+        </div>
+        <div class="fg">
+          <label class="fl">備考 <span class="hint">オープン日など</span></label>
+          <input type="text" class="fi s-note" placeholder="">
+        </div>
+      </div>
+      <div class="form-row c1">
+        <div class="fg">
+          <label class="fl">印象・メモ</label>
+          <textarea class="fta s-imp" rows="3" placeholder="店舗の印象や特徴..."></textarea>
+        </div>
+      </div>
+      <div class="form-row c1">
+        <div class="fg">
+          <label class="fl">タグ <span class="hint">カンマ区切り、例: 節分, POP, 新店</span></label>
+          <input type="text" class="fi s-tags" placeholder="節分, POP, 新店">
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function thumbToDataURL(canvas) {
+  if (!canvas) return '';
+  const c = document.createElement('canvas');
+  c.width = canvas.width; c.height = canvas.height;
+  c.getContext('2d').drawImage(canvas, 0, 0);
+  return c.toDataURL('image/jpeg', 0.7);
+}
+
+document.getElementById('btn-4back').addEventListener('click', () => goStep(3));
+
+// ═══════════════════════════════════════════════
+// STEP 5 : 保存
+// ═══════════════════════════════════════════════
+document.getElementById('btn-save').addEventListener('click', async () => {
+  if (!collectStores()) return;
+  collectBasic();
+  await saveAll();
+});
+
+function collectBasic() {
+  S.basic = {
+    id:         document.getElementById('f-id').value.trim(),
+    title:      document.getElementById('f-area').value.trim(),
+    date:       document.getElementById('f-date').value,
+    dateLabel:  document.getElementById('f-datelabel').value.trim(),
+    author:     document.getElementById('f-author').value.trim(),
+    department: document.getElementById('f-dept').value.trim(),
+    area:       document.getElementById('f-area').value.trim(),
+    summaryPage: 1,
+    purpose:    document.getElementById('f-purpose').value.split('\n').map(p => p.trim()).filter(Boolean),
+    impression: document.getElementById('f-impression').value.trim(),
+    tags:       document.getElementById('f-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+  };
+  S.reportId = S.basic.id;
+}
+
+function collectStores() {
+  S.stores = [];
+  const cards = document.querySelectorAll('.store-card');
+  for (const c of cards) {
+    const name = c.querySelector('.s-name').value.trim();
+    if (!name) { alert('すべての店舗名を入力してください。'); c.querySelector('.s-name').focus(); return false; }
+    const addr  = c.querySelector('.s-addr').value.trim();
+    const tags  = c.querySelector('.s-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+    const safeId = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-\u3040-\u30ff\u4e00-\u9fff]/g, '').slice(0, 30) || `store${S.stores.length+1}`;
+    S.stores.push({
+      id: safeId,
+      name,
+      address: addr,
+      mapsUrl: addr ? `https://maps.google.com/?q=${encodeURIComponent(name + ' ' + addr)}` : '',
+      time:       c.querySelector('.s-time').value.trim(),
+      note:       c.querySelector('.s-note').value.trim(),
+      impression: c.querySelector('.s-imp').value.trim(),
+      page: +c.dataset.savedPage,
+      tags,
+    });
+  }
+  return true;
+}
+
+async function saveAll() {
+  document.getElementById('btn-save').disabled = true;
+  document.getElementById('save-btn-label').textContent = '⏳ 保存中...';
+
+  const reportData = { ...S.basic, stores: S.stores };
+
+  try {
+    if (S.dirHandle) {
+      showProg('保存中...', '準備しています');
+      await saveToFS(reportData);
+    } else {
+      showProg('ダウンロード中...', '');
+      await downloadFallback(reportData);
+    }
+    hideProg();
+
+    const msgEl = document.getElementById('success-msg');
+    msgEl.innerHTML = S.dirHandle
+      ? `<strong>reports/${S.reportId}/</strong> に ${S.included.length} 枚の画像を保存し、<br><strong>data/reports_data.js</strong> を更新しました。<br><br>サイトを開いて確認してください。`
+      : `画像ファイル（${S.included.length}枚）とデータファイルをダウンロードしました。<br>reports/${S.reportId}/ フォルダに画像を配置し、<br>reports_data.js に新しいデータを追記してください。`;
+
+    goStep(5);
+  } catch (e) {
+    hideProg();
+    console.error(e);
+    alert('保存に失敗しました:\n' + e.message);
+    document.getElementById('btn-save').disabled = false;
+    document.getElementById('save-btn-label').textContent = '💾　保存する';
+  }
+}
+
+// ── ファイルシステムへの書き込み ──────────────────────
+async function saveToFS(reportData) {
+  updProg('保存中...', 'フォルダを作成しています');
+  const reportsDir = await S.dirHandle.getDirectoryHandle('reports', { create: true });
+  const reportDir  = await reportsDir.getDirectoryHandle(S.reportId, { create: true });
+
+  const inc = [...S.included].sort((a, b) => a - b);
+  for (let i = 0; i < inc.length; i++) {
+    const pdfP     = inc[i];
+    const savedNum = i + 1;
+    updProg('保存中...', `画像を変換中: page_${savedNum}.jpg (${i+1}/${inc.length})`);
+
+    // 高解像度レンダリング
+    const page  = await S.pdfDoc.getPage(pdfP);
+    const vp    = page.getViewport({ scale: 2.0 });
+    const cv    = document.createElement('canvas');
+    cv.width = vp.width; cv.height = vp.height;
+    await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+
+    const blob   = await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.85));
+    const fh     = await reportDir.getFileHandle(`page_${savedNum}.jpg`, { create: true });
+    const writer = await fh.createWritable();
+    await writer.write(await blob.arrayBuffer());
+    await writer.close();
+  }
+
+  updProg('保存中...', 'reports_data.js を更新しています');
+  await updateReportsJS(reportData);
+}
+
+async function updateReportsJS(newReport) {
+  const dataDir = await S.dirHandle.getDirectoryHandle('data');
+  const fh      = await dataDir.getFileHandle('reports_data.js');
+  const text    = await (await fh.getFile()).text();
+
+  let existing = [];
+  const m = text.match(/window\.REPORTS_DATA\s*=\s*(\[[\s\S]*?\]);/);
+  if (m) { try { existing = JSON.parse(m[1]); } catch(e) {} }
+
+  const idx = existing.findIndex(r => r.id === newReport.id);
+  if (idx >= 0) existing[idx] = newReport;
+  else          existing.unshift(newReport);
+  existing.sort((a, b) => (b.date||'').localeCompare(a.date||''));
+
+  const now = new Date().toLocaleString('ja-JP');
+  const content = `// ============================================================\n// 報告書データ - このファイルは add_report.py が自動生成します\n// 手動で編集する場合は下記の構造に従ってください\n// 最終更新: ${now}\n// ============================================================\nwindow.REPORTS_DATA = ${JSON.stringify(existing, null, 2)};\n`;
+
+  const writer = await fh.createWritable();
+  await writer.write(new TextEncoder().encode(content));
+  await writer.close();
+}
+
+// ── フォルダ未選択時のダウンロード ────────────────────
+async function downloadFallback(reportData) {
+  const inc = [...S.included].sort((a, b) => a - b);
+  for (let i = 0; i < inc.length; i++) {
+    const pdfP     = inc[i];
+    const savedNum = i + 1;
+    updProg('ダウンロード中...', `page_${savedNum}.jpg (${i+1}/${inc.length})`);
+
+    const page = await S.pdfDoc.getPage(pdfP);
+    const vp   = page.getViewport({ scale: 2.0 });
+    const cv   = document.createElement('canvas');
+    cv.width = vp.width; cv.height = vp.height;
+    await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+
+    const blob = await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.85));
+    const a    = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(blob),
+      download: `${S.reportId}_page_${savedNum}.jpg`,
+    });
+    a.click(); URL.revokeObjectURL(a.href);
+    await new Promise(r => setTimeout(r, 600));
+  }
+  // データJS
+  const content = `// 以下を reports_data.js の配列先頭に追加してください\n${JSON.stringify(reportData, null, 2)}\n`;
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([content], { type: 'text/plain' })),
+    download: `${S.reportId}_data.txt`,
+  });
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+// ── リセット ────────────────────────────────────────
+document.getElementById('btn-another').addEventListener('click', () => {
+  S = { dirHandle: S.dirHandle, pdfDoc: null, totalPages: 0, included: [], thumbCanvases: {}, reportId: '', basic: {}, stores: [] };
+  pdfInput.value = '';
+  document.getElementById('pdf-info').style.display = 'none';
+  document.getElementById('btn-1to2').disabled = true;
+  document.getElementById('page-grid').innerHTML = '';
+  ['f-author','f-dept','f-date','f-datelabel','f-area','f-purpose','f-impression','f-tags','f-id']
+    .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('btn-save').disabled = false;
+  document.getElementById('save-btn-label').textContent = '💾　保存する';
+  goStep(1);
+  updateStepUI(1, 'active');
+});
+</script>
+</body>
+</html>
