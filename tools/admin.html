@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>レポート追加ツール｜店舗視察レポート</title>
+  <title>ã¬ãã¼ãè¿½å ãã¼ã«ï½åºèè¦å¯ã¬ãã¼ã</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -12,20 +12,20 @@
       --blue-light: #dbeafe; --blue-pale: #eff6ff;
       --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
       --gray-400: #94a3b8; --gray-500: #64748b; --gray-700: #334155; --gray-900: #0f172a;
-      --green: #059669; --green-pale: #ecfdf5; --red: #dc2626;
+      --green: #059669; --green-pale: #ecfdf5; --red: #dc2626; --red-pale: #fef2f2;
       --radius: 12px;
     }
     html, body { min-height: 100vh; font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif; background: var(--gray-50); color: var(--gray-900); -webkit-font-smoothing: antialiased; }
 
-    /* ── HEADER ── */
+    /* ââ HEADER ââ */
     .app-header { background: linear-gradient(90deg, var(--blue-dark), var(--blue-main)); color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.2); position: sticky; top: 0; z-index: 30; }
     .btn-back-home { background: rgba(255,255,255,.18); border: none; color: #fff; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; flex-shrink: 0; }
     .header-title { font-size: .95rem; font-weight: 700; flex: 1; }
 
-    /* ── MAIN ── */
+    /* ââ MAIN ââ */
     .main { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
 
-    /* ── STEP INDICATORS ── */
+    /* ââ STEP INDICATORS ââ */
     .steps { display: flex; background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 28px; }
     .step { flex: 1; padding: 13px 8px; text-align: center; font-size: .75rem; font-weight: 600; color: var(--gray-400); border-right: 1px solid var(--gray-200); transition: all .2s; }
     .step:last-child { border-right: none; }
@@ -33,11 +33,11 @@
     .step.active { background: var(--blue-pale); color: var(--blue-main); }
     .step.done { background: var(--green-pale); color: var(--green); }
 
-    /* ── CARDS ── */
+    /* ââ CARDS ââ */
     .card { background: #fff; border-radius: var(--radius); padding: 22px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 18px; }
     .card-title { font-size: .95rem; font-weight: 700; color: var(--blue-dark); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--blue-light); display: flex; align-items: center; gap: 8px; }
 
-    /* ── FORMS ── */
+    /* ââ FORMS ââ */
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
     .form-row.c1 { grid-template-columns: 1fr; }
     .form-row.c3 { grid-template-columns: 1fr 1fr 1fr; }
@@ -47,30 +47,42 @@
     .fi, .fta { padding: 9px 12px; border: 1.5px solid var(--gray-200); border-radius: 8px; font-size: .88rem; font-family: inherit; outline: none; transition: border-color .2s; background: var(--gray-50); color: var(--gray-900); width: 100%; }
     .fi:focus, .fta:focus { border-color: var(--blue-main); background: #fff; }
     .fta { resize: vertical; min-height: 72px; }
+    .fi-token { font-family: monospace; font-size: .82rem; letter-spacing: .05em; }
 
-    /* ── BUTTONS ── */
+    /* ââ BUTTONS ââ */
     .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: .88rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: opacity .15s; }
     .btn:active { opacity: .8; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
     .btn-primary { background: var(--blue-main); color: #fff; }
     .btn-secondary { background: var(--gray-100); color: var(--gray-700); }
     .btn-success { background: var(--green); color: #fff; }
     .btn-sm { padding: 6px 12px; font-size: .78rem; }
-    .btn-danger { background: #fef2f2; color: var(--red); border: 1.5px solid #fecaca; }
+    .btn-danger { background: var(--red-pale); color: var(--red); border: 1.5px solid #fecaca; }
+    .btn-ghost { background: transparent; border: 1.5px solid var(--gray-200); color: var(--gray-500); }
 
-    /* ── UPLOAD ZONE ── */
+    /* ââ GITHUB BADGE ââ */
+    .gh-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: .75rem; font-weight: 600; }
+    .gh-badge.ok  { background: var(--green-pale); color: var(--green); border: 1px solid #a7f3d0; }
+    .gh-badge.ng  { background: var(--red-pale); color: var(--red); border: 1px solid #fecaca; }
+    .gh-badge.none { background: var(--gray-100); color: var(--gray-400); border: 1px solid var(--gray-200); }
+
+    /* ââ PAT SECTION ââ */
+    .pat-row { display: flex; gap: 10px; align-items: flex-end; }
+    .pat-row .fg { flex: 1; }
+    .pat-tip { font-size: .75rem; color: var(--gray-500); line-height: 1.5; margin-top: 8px; }
+    .pat-tip a { color: var(--blue-main); }
+    .pat-status { display: flex; align-items: center; gap: 8px; margin-top: 10px; min-height: 28px; }
+    .token-input-wrap { position: relative; }
+    .token-input-wrap .btn-eye { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--gray-400); padding: 4px; font-size: 1rem; }
+
+    /* ââ UPLOAD ZONE ââ */
     .upload-zone { border: 2.5px dashed var(--gray-200); border-radius: var(--radius); padding: 44px 24px; text-align: center; cursor: pointer; transition: all .2s; }
     .upload-zone:hover, .upload-zone.drag-over { border-color: var(--blue-main); background: var(--blue-pale); }
     .upload-icon { font-size: 2.8rem; margin-bottom: 10px; }
     .upload-text { font-size: .88rem; color: var(--gray-500); }
     .upload-text strong { color: var(--blue-main); }
 
-    /* ── ACCESS BANNER ── */
-    .access-banner { background: var(--blue-pale); border: 1.5px solid var(--blue-light); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-    .access-banner.granted { background: var(--green-pale); border-color: #a7f3d0; }
-    .access-icon { font-size: 1.6rem; flex-shrink: 0; }
-    .access-text { font-size: .83rem; flex: 1; line-height: 1.5; }
-
-    /* ── PAGE GRID ── */
+    /* ââ PAGE GRID ââ */
     .page-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
     .page-thumb { position: relative; border: 2.5px solid var(--gray-200); border-radius: 8px; overflow: hidden; cursor: pointer; transition: all .15s; background: #fff; }
     .page-thumb.selected { border-color: var(--blue-main); box-shadow: 0 0 0 1px var(--blue-main); }
@@ -84,90 +96,116 @@
     .page-thumb.excluded .pt-check { background: var(--red); }
     .page-hint { font-size: .82rem; color: var(--gray-500); margin-bottom: 14px; line-height: 1.6; }
 
-    /* ── STORE FORMS ── */
+    /* ââ STORE FORMS ââ */
     .store-card { border: 1.5px solid var(--gray-200); border-radius: 10px; padding: 18px; margin-bottom: 14px; }
     .store-card-hd { font-size: .88rem; font-weight: 700; color: var(--blue-main); margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
     .store-preview-wrap { display: grid; grid-template-columns: 120px 1fr; gap: 14px; margin-bottom: 14px; }
     .store-preview-img { width: 100%; border-radius: 6px; border: 1px solid var(--gray-200); }
 
-    /* ── NAV ROW ── */
+    /* ââ NAV ROW ââ */
     .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; }
 
-    /* ── PROGRESS OVERLAY ── */
+    /* ââ PROGRESS OVERLAY ââ */
     .progress-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.48); display: none; align-items: center; justify-content: center; z-index: 100; }
     .progress-overlay.show { display: flex; }
-    .progress-box { background: #fff; border-radius: var(--radius); padding: 30px; text-align: center; min-width: 260px; }
+    .progress-box { background: #fff; border-radius: var(--radius); padding: 30px; text-align: center; min-width: 300px; max-width: 420px; }
     .progress-title { font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
     .progress-msg { font-size: .82rem; color: var(--gray-500); }
     .progress-spin { font-size: 2rem; margin-bottom: 12px; animation: spin 1.2s linear infinite; display: inline-block; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .progress-detail { margin-top: 10px; background: var(--gray-50); border-radius: 8px; padding: 8px 12px; text-align: left; font-size: .75rem; color: var(--gray-500); line-height: 1.8; max-height: 120px; overflow-y: auto; }
 
-    /* ── SUCCESS ── */
+    /* ââ SUCCESS ââ */
     .success-card { text-align: center; padding: 36px 24px; }
     .success-icon { font-size: 3.2rem; margin-bottom: 14px; }
     .success-title { font-size: 1.25rem; font-weight: 700; color: var(--green); margin-bottom: 8px; }
     .success-msg { font-size: .85rem; color: var(--gray-500); line-height: 1.7; margin-bottom: 24px; }
     .success-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 
-    /* ── SCREEN VISIBILITY ── */
+    /* ââ SCREEN VISIBILITY ââ */
     .screen { display: none; }
     .screen.active { display: block; }
+
+    /* ââ INFO ALERT ââ */
+    .alert { border-radius: 8px; padding: 12px 16px; font-size: .82rem; line-height: 1.6; margin-bottom: 14px; }
+    .alert-info { background: var(--blue-pale); border: 1px solid var(--blue-light); color: #1e40af; }
+    .alert-warn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
 
     @media (max-width: 580px) {
       .form-row { grid-template-columns: 1fr; }
       .form-row.c3 { grid-template-columns: 1fr; }
       .store-preview-wrap { grid-template-columns: 1fr; }
       .steps .sn { display: none; }
+      .pat-row { flex-direction: column; }
     }
   </style>
 </head>
 <body>
 
 <header class="app-header">
-  <a href="../index.html" class="btn-back-home" title="サイトに戻る">
+  <a href="../index.html" class="btn-back-home" title="ãµã¤ãã«æ»ã">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
       <path d="M19 12H5M12 19l-7-7 7-7"/>
     </svg>
   </a>
-  <div class="header-title">📋 レポート追加ツール</div>
+  <div class="header-title">ð ã¬ãã¼ãè¿½å ãã¼ã«</div>
 </header>
 
 <div class="main">
 
-  <!-- ── STEP INDICATORS ── -->
+  <!-- ââ STEP INDICATORS ââ -->
   <div class="steps">
-    <div class="step active" id="si1"><span class="sn">STEP 1</span>PDF読込</div>
-    <div class="step" id="si2"><span class="sn">STEP 2</span>ページ選択</div>
-    <div class="step" id="si3"><span class="sn">STEP 3</span>基本情報</div>
-    <div class="step" id="si4"><span class="sn">STEP 4</span>店舗情報</div>
-    <div class="step" id="si5"><span class="sn">STEP 5</span>完了</div>
+    <div class="step active" id="si1"><span class="sn">STEP 1</span>è¨­å®ã»PDF</div>
+    <div class="step" id="si2"><span class="sn">STEP 2</span>ãã¼ã¸é¸æ</div>
+    <div class="step" id="si3"><span class="sn">STEP 3</span>åºæ¬æå ±</div>
+    <div class="step" id="si4"><span class="sn">STEP 4</span>åºèæå ±</div>
+    <div class="step" id="si5"><span class="sn">STEP 5</span>å®äº</div>
   </div>
 
-  <!-- ══════════════════════════════════════════
-       STEP 1 : PDF アップロード
-  ══════════════════════════════════════════ -->
+  <!-- ââââââââââââââââââââââââââââââââââââââââââ
+       STEP 1 : GitHubè¨­å® & PDFèª­ã¿è¾¼ã¿
+  ââââââââââââââââââââââââââââââââââââââââââ -->
   <div class="screen active" id="sc1">
 
-    <!-- フォルダアクセス -->
+    <!-- GitHub PAT è¨­å® -->
     <div class="card">
-      <div class="card-title">📂 プロジェクトフォルダへのアクセス</div>
-      <div class="access-banner" id="access-banner">
-        <div class="access-icon">🔒</div>
-        <div class="access-text">
-          <strong>ファイルを自動保存するには</strong>、プロジェクトフォルダへのアクセスを許可してください。<br>
-          <small>スキップした場合は画像ファイルを個別にダウンロードします。</small>
-        </div>
-        <button class="btn btn-primary btn-sm" id="btn-grant">フォルダを選択</button>
+      <div class="card-title">ð GitHubæ¥ç¶è¨­å®</div>
+
+      <div class="alert alert-info">
+        PDFããå¤æããç»åã¨ãã¼ã¿ããç´æ¥GitHubãªãã¸ããªã«Pushãã¾ãã<br>
+        GitHub Personal Access Tokenï¼PATï¼ãå¿è¦ã§ãã
+        <a href="https://github.com/settings/tokens/new?scopes=repo&description=store-report-pwa" target="_blank" style="color:inherit;font-weight:700;">â PATãçºè¡ãã</a>
       </div>
+
+      <div class="pat-row">
+        <div class="fg">
+          <label class="fl">GitHub Personal Access Token <span class="hint">repo ã¹ã³ã¼ããå¿è¦</span></label>
+          <div class="token-input-wrap">
+            <input type="password" class="fi fi-token" id="f-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+            <button class="btn-eye" onclick="toggleTokenVis()" title="è¡¨ç¤º/éè¡¨ç¤º">ð</button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btn-test-token" onclick="testToken()" style="white-space:nowrap;margin-bottom:2px;">æ¥ç¶ãã¹ã</button>
+      </div>
+
+      <div class="pat-status">
+        <span class="gh-badge none" id="gh-status-badge">â æªç¢ºèª</span>
+        <span id="gh-status-msg" style="font-size:.78rem;color:var(--gray-500);"></span>
+      </div>
+
+      <p class="pat-tip">
+        â ï¸ PATã¯ <strong>repo</strong> ã¹ã³ã¼ãã®ã¿ä»ä¸ãããã¨ãæ¨å¥¨ãã¾ãããã®ãã©ã¦ã¶ã«ä¿å­ãããä»ã®ãµã¤ãã¨ã¯å±æããã¾ããã<br>
+        ãªãã¸ããª: <strong>tokokanri10502-pixel / store-report-pwa</strong>ï¼mainãã©ã³ãï¼
+      </p>
     </div>
 
-    <!-- PDF アップロード -->
+    <!-- PDF ã¢ããã­ã¼ã -->
     <div class="card">
-      <div class="card-title">📄 PDFファイルの読み込み</div>
+      <div class="card-title">ð PDFãã¡ã¤ã«ã®èª­ã¿è¾¼ã¿</div>
       <div class="upload-zone" id="upload-zone">
-        <div class="upload-icon">📄</div>
+        <div class="upload-icon">ð</div>
         <div class="upload-text">
-          <strong>クリックしてPDFを選択</strong>、またはここにドラッグ&ドロップ
+          <strong>ã¯ãªãã¯ãã¦PDFãé¸æ</strong>ãã¾ãã¯ããã«ãã©ãã°&ãã­ãã
         </div>
         <input type="file" id="pdf-input" accept=".pdf" style="display:none">
       </div>
@@ -176,213 +214,254 @@
 
     <div class="nav-row">
       <div></div>
-      <button class="btn btn-primary" id="btn-1to2" disabled>次へ　→　ページ選択</button>
+      <button class="btn btn-primary" id="btn-1to2" disabled>æ¬¡ã¸ãâããã¼ã¸é¸æ</button>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════
-       STEP 2 : ページ選択
-  ══════════════════════════════════════════ -->
+  <!-- ââââââââââââââââââââââââââââââââââââââââââ
+       STEP 2 : ãã¼ã¸é¸æ
+  ââââââââââââââââââââââââââââââââââââââââââ -->
   <div class="screen" id="sc2">
     <div class="card">
-      <div class="card-title">🖼️ 含めるページを選択</div>
+      <div class="card-title">ð¼ï¸ å«ãããã¼ã¸ãé¸æ</div>
       <p class="page-hint">
-        クリックでページを <strong>含める／除外</strong> に切り替えられます。<br>
-        地図ページなど不要なページは除外（グレーアウト）してください。<br>
-        先頭のページがサマリーページ、2ページ目以降が各店舗ページになります。
+        ã¯ãªãã¯ã§ãã¼ã¸ã <strong>å«ããï¼é¤å¤</strong> ã«åãæ¿ãããã¾ãã<br>
+        å°å³ãã¼ã¸ãªã©ä¸è¦ãªãã¼ã¸ã¯é¤å¤ãã¦ãã ããã<br>
+        åé ­ãã¼ã¸ããµããªã¼ã2ãã¼ã¸ç®ä»¥éãååºèãã¼ã¸ã«ãªãã¾ãã
       </p>
       <div class="page-grid" id="page-grid"></div>
     </div>
     <div class="nav-row">
-      <button class="btn btn-secondary" id="btn-2back">← 戻る</button>
-      <button class="btn btn-primary" id="btn-2to3">次へ　→　基本情報</button>
+      <button class="btn btn-secondary" id="btn-2back">â æ»ã</button>
+      <button class="btn btn-primary" id="btn-2to3">æ¬¡ã¸ãâãåºæ¬æå ±</button>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════
-       STEP 3 : 基本情報
-  ══════════════════════════════════════════ -->
+  <!-- ââââââââââââââââââââââââââââââââââââââââââ
+       STEP 3 : åºæ¬æå ±
+  ââââââââââââââââââââââââââââââââââââââââââ -->
   <div class="screen" id="sc3">
     <div class="card">
-      <div class="card-title">📝 報告書の基本情報</div>
+      <div class="card-title">ð å ±åæ¸ã®åºæ¬æå ±</div>
 
       <div class="form-row">
         <div class="fg">
-          <label class="fl">作成者名 <span class="hint">例: 山田太郎</span></label>
-          <input type="text" class="fi" id="f-author" placeholder="山田太郎">
+          <label class="fl">ä½æèå <span class="hint">ä¾: å±±ç°å¤ªé</span></label>
+          <input type="text" class="fi" id="f-author" placeholder="å±±ç°å¤ªé">
         </div>
         <div class="fg">
-          <label class="fl">部署名 <span class="hint">例: 企画課</span></label>
-          <input type="text" class="fi" id="f-dept" placeholder="企画課">
+          <label class="fl">é¨ç½²å <span class="hint">ä¾: ä¼ç»èª²</span></label>
+          <input type="text" class="fi" id="f-dept" placeholder="ä¼ç»èª²">
         </div>
       </div>
 
       <div class="form-row">
         <div class="fg">
-          <label class="fl">視察日</label>
+          <label class="fl">è¦å¯æ¥</label>
           <input type="date" class="fi" id="f-date">
         </div>
         <div class="fg">
-          <label class="fl">表示用の日付 <span class="hint">例: 2026年3月15日</span></label>
-          <input type="text" class="fi" id="f-datelabel" placeholder="2026年3月15日">
+          <label class="fl">è¡¨ç¤ºç¨ã®æ¥ä» <span class="hint">ä¾: 2026å¹´3æ15æ¥</span></label>
+          <input type="text" class="fi" id="f-datelabel" placeholder="2026å¹´3æ15æ¥">
         </div>
       </div>
 
       <div class="form-row c1">
         <div class="fg">
-          <label class="fl">エリア・タイトル <span class="hint">例: 関東（千葉・東京）出張報告書</span></label>
-          <input type="text" class="fi" id="f-area" placeholder="関東（千葉・東京）出張報告書">
+          <label class="fl">ã¨ãªã¢ã»ã¿ã¤ãã« <span class="hint">ä¾: é¢æ±ï¼åèã»æ±äº¬ï¼åºå¼µå ±åæ¸</span></label>
+          <input type="text" class="fi" id="f-area" placeholder="é¢æ±ï¼åèã»æ±äº¬ï¼åºå¼µå ±åæ¸">
         </div>
       </div>
 
       <div class="form-row c1">
         <div class="fg">
-          <label class="fl">視察目的 <span class="hint">1行1目的で入力</span></label>
-          <textarea class="fta" id="f-purpose" rows="3" placeholder="各社のPB展開を調査する&#10;母の日カタログを入手する"></textarea>
+          <label class="fl">è¦å¯ç®ç <span class="hint">1è¡1ç®çã§å¥å</span></label>
+          <textarea class="fta" id="f-purpose" rows="3" placeholder="åç¤¾ã®PBå±éãèª¿æ»ãã&#10;æ¯ã®æ¥ã«ã¿ã­ã°ãå¥æãã"></textarea>
         </div>
       </div>
 
       <div class="form-row c1">
         <div class="fg">
-          <label class="fl">所感・まとめ</label>
-          <textarea class="fta" id="f-impression" rows="4" placeholder="全体的な所感をここに記入..."></textarea>
+          <label class="fl">ææã»ã¾ã¨ã</label>
+          <textarea class="fta" id="f-impression" rows="4" placeholder="å¨ä½çãªææãããã«è¨å¥..."></textarea>
         </div>
       </div>
 
       <div class="form-row">
         <div class="fg">
-          <label class="fl">タグ <span class="hint">カンマ区切り、例: 節分, POP, バレンタイン</span></label>
-          <input type="text" class="fi" id="f-tags" placeholder="節分, POP, バレンタイン">
+          <label class="fl">ã¿ã° <span class="hint">ã«ã³ãåºåããä¾: ç¯å, POP, ãã«ã³ã¿ã¤ã³</span></label>
+          <input type="text" class="fi" id="f-tags" placeholder="ç¯å, POP, ãã¬ã³ã¿ã¤ã³">
         </div>
         <div class="fg">
-          <label class="fl">報告書ID <span class="hint">フォルダ名（英数字・ハイフン推奨）</span></label>
+          <label class="fl">å ±åæ¸ID <span class="hint">ãã©ã«ãåï¼è±æ°å­ã»ãã¤ãã³æ¨å¥¨ï¼</span></label>
           <input type="text" class="fi" id="f-id" placeholder="202603-yamada">
         </div>
       </div>
     </div>
 
     <div class="nav-row">
-      <button class="btn btn-secondary" id="btn-3back">← 戻る</button>
-      <button class="btn btn-primary" id="btn-3to4">次へ　→　店舗情報</button>
+      <button class="btn btn-secondary" id="btn-3back">â æ»ã</button>
+      <button class="btn btn-primary" id="btn-3to4">æ¬¡ã¸ãâãåºèæå ±</button>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════
-       STEP 4 : 店舗情報
-  ══════════════════════════════════════════ -->
+  <!-- ââââââââââââââââââââââââââââââââââââââââââ
+       STEP 4 : åºèæå ±
+  ââââââââââââââââââââââââââââââââââââââââââ -->
   <div class="screen" id="sc4">
     <div class="card">
-      <div class="card-title">🏪 店舗情報の入力</div>
+      <div class="card-title">ðª åºèæå ±ã®å¥å</div>
       <p class="page-hint" style="margin-bottom:18px;">
-        各ページに対応する店舗情報を入力してください。<br>
-        ページ1はサマリー（表紙）として扱われます。
+        åãã¼ã¸ã«å¯¾å¿ããåºèæå ±ãå¥åãã¦ãã ããã<br>
+        ãã¼ã¸1ã¯ãµããªã¼ï¼è¡¨ç´ï¼ã¨ãã¦æ±ããã¾ãã
       </p>
       <div id="store-forms"></div>
     </div>
     <div class="nav-row">
-      <button class="btn btn-secondary" id="btn-4back">← 戻る</button>
+      <button class="btn btn-secondary" id="btn-4back">â æ»ã</button>
       <button class="btn btn-success" id="btn-save">
-        <span id="save-btn-label">💾　保存する</span>
+        <span id="save-btn-label">ð¤ãGitHubã«ä¿å­ãã</span>
       </button>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════
-       STEP 5 : 完了
-  ══════════════════════════════════════════ -->
+  <!-- ââââââââââââââââââââââââââââââââââââââââââ
+       STEP 5 : å®äº
+  ââââââââââââââââââââââââââââââââââââââââââ -->
   <div class="screen" id="sc5">
     <div class="card success-card">
-      <div class="success-icon">✅</div>
-      <div class="success-title">保存完了！</div>
+      <div class="success-icon">â</div>
+      <div class="success-title">GitHubã¸ã®ä¿å­å®äºï¼</div>
       <div class="success-msg" id="success-msg"></div>
       <div class="success-btns">
-        <a href="../index.html" class="btn btn-primary">サイトで確認する →</a>
-        <button class="btn btn-secondary" id="btn-another">別のPDFを追加する</button>
+        <a href="https://tokokanri10502-pixel.github.io/store-report-pwa/" target="_blank" class="btn btn-primary">ãµã¤ãã§ç¢ºèªãã â</a>
+        <button class="btn btn-secondary" id="btn-another">å¥ã®PDFãè¿½å ãã</button>
       </div>
     </div>
   </div>
 
 </div><!-- .main -->
 
-<!-- ── プログレスオーバーレイ ── -->
+<!-- ââ ãã­ã°ã¬ã¹ãªã¼ãã¼ã¬ã¤ ââ -->
 <div class="progress-overlay" id="prog-overlay">
   <div class="progress-box">
-    <div class="progress-spin">⚙️</div>
-    <div class="progress-title" id="prog-title">処理中...</div>
+    <div class="progress-spin">âï¸</div>
+    <div class="progress-title" id="prog-title">å¦çä¸­...</div>
     <div class="progress-msg" id="prog-msg"></div>
+    <div class="progress-detail" id="prog-detail"></div>
   </div>
 </div>
 
-<!-- ════════════════════════════════════════════════
+<!-- ââââââââââââââââââââââââââââââââââââââââââââââââ
      JavaScript
-════════════════════════════════════════════════ -->
+ââââââââââââââââââââââââââââââââââââââââââââââââ -->
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-// ─── State ──────────────────────────────────────
+// ââ GitHub è¨­å® ââââââââââââââââââââââââââââââââ
+const GH_OWNER  = 'tokokanri10502-pixel';
+const GH_REPO   = 'store-report-pwa';
+const GH_BRANCH = 'main';
+const TOKEN_KEY = 'gh_pat_store_report';
+
+// âââ State ââââââââââââââââââââââââââââââââââââââ
 let S = {
-  dirHandle: null,      // FileSystemDirectoryHandle
+  githubToken: '',
   pdfDoc: null,
   totalPages: 0,
-  included: [],         // 含めるPDFページ番号(1始まり)の配列
-  thumbCanvases: {},    // pageNum → canvas(低解像度)
+  included: [],
+  thumbCanvases: {},
   reportId: '',
   basic: {},
   stores: [],
 };
 
-// ─── Step navigation ─────────────────────────────
+// âââ Token init ââââââââââââââââââââââââââââââââââ
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem(TOKEN_KEY);
+  if (saved) {
+    document.getElementById('f-token').value = saved;
+    S.githubToken = saved;
+    updateBadge('none', 'ãã¼ã¯ã³èª­ã¿è¾¼ã¿æ¸ã¿ï¼è¦ãã¹ãï¼');
+  }
+});
+
+function toggleTokenVis() {
+  const fi = document.getElementById('f-token');
+  fi.type = fi.type === 'password' ? 'text' : 'password';
+}
+
+async function testToken() {
+  const token = document.getElementById('f-token').value.trim();
+  if (!token) { updateBadge('ng', 'ãã¼ã¯ã³ãå¥åãã¦ãã ãã'); return; }
+  updateBadge('none', 'ç¢ºèªä¸­...');
+  document.getElementById('btn-test-token').disabled = true;
+  try {
+    const r = await fetch(
+      `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}`,
+      { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' } }
+    );
+    if (r.ok) {
+      S.githubToken = token;
+      localStorage.setItem(TOKEN_KEY, token);
+      updateBadge('ok', `æ¥ç¶OKï¼${GH_OWNER}/${GH_REPO}ï¼`);
+    } else if (r.status === 401) {
+      updateBadge('ng', 'ãã¼ã¯ã³ãç¡å¹ã§ã');
+    } else if (r.status === 404) {
+      updateBadge('ng', 'ãªãã¸ããªãè¦ã¤ããã¾ãã');
+    } else {
+      updateBadge('ng', `ã¨ã©ã¼: ${r.status}`);
+    }
+  } catch(e) {
+    updateBadge('ng', 'ãããã¯ã¼ã¯ã¨ã©ã¼: ' + e.message);
+  }
+  document.getElementById('btn-test-token').disabled = false;
+}
+
+function updateBadge(type, msg) {
+  const b = document.getElementById('gh-status-badge');
+  b.className = 'gh-badge ' + type;
+  b.textContent = type === 'ok' ? 'â æ¥ç¶OK' : type === 'ng' ? 'â ã¨ã©ã¼' : 'â æªç¢ºèª';
+  document.getElementById('gh-status-msg').textContent = msg;
+}
+
+// âââ Step navigation âââââââââââââââââââââââââââââ
 let curStep = 1;
 function goStep(n) {
   document.getElementById(`sc${curStep}`).classList.remove('active');
-  updateStepUI(curStep, 'done');
   curStep = n;
   document.getElementById(`sc${n}`).classList.add('active');
-  updateStepUI(n, 'active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-function updateStepUI(n, cls) {
   for (let i = 1; i <= 5; i++) {
     const el = document.getElementById(`si${i}`);
-    el.classList.remove('active', 'done');
+    el.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
   }
-  for (let i = 1; i < curStep; i++) document.getElementById(`si${i}`).classList.add('done');
-  document.getElementById(`si${curStep}`).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ─── Progress ────────────────────────────────────
+// âââ Progress ââââââââââââââââââââââââââââââââââââ
 function showProg(t, m) {
   document.getElementById('prog-overlay').classList.add('show');
   document.getElementById('prog-title').textContent = t;
   document.getElementById('prog-msg').textContent = m || '';
+  document.getElementById('prog-detail').textContent = '';
 }
 function updProg(t, m) {
-  document.getElementById('prog-title').textContent = t;
-  document.getElementById('prog-msg').textContent = m || '';
+  if (t) document.getElementById('prog-title').textContent = t;
+  if (m !== undefined) document.getElementById('prog-msg').textContent = m;
+}
+function addProgLog(line) {
+  const el = document.getElementById('prog-detail');
+  el.textContent += line + '\n';
+  el.scrollTop = el.scrollHeight;
 }
 function hideProg() { document.getElementById('prog-overlay').classList.remove('show'); }
 
-// ═══════════════════════════════════════════════
-// STEP 1 : フォルダアクセス & PDF読み込み
-// ═══════════════════════════════════════════════
-document.getElementById('btn-grant').addEventListener('click', async () => {
-  try {
-    const h = await window.showDirectoryPicker({ mode: 'readwrite' });
-    S.dirHandle = h;
-    const banner = document.getElementById('access-banner');
-    banner.classList.add('granted');
-    banner.querySelector('.access-icon').textContent = '✅';
-    banner.querySelector('.access-text').innerHTML =
-      `フォルダ「<strong>${h.name}</strong>」へのアクセスが許可されました。ファイルは自動保存されます。`;
-    document.getElementById('btn-grant').textContent = '再選択';
-  } catch (e) {
-    if (e.name !== 'AbortError') alert('アクセスに失敗しました: ' + e.message);
-  }
-});
-
+// ââââââââââââââââââââââââââââââââââââââââââââââââ
+// STEP 1 : PDFèª­ã¿è¾¼ã¿
+// ââââââââââââââââââââââââââââââââââââââââââââââââ
 const uploadZone = document.getElementById('upload-zone');
-const pdfInput  = document.getElementById('pdf-input');
+const pdfInput   = document.getElementById('pdf-input');
 uploadZone.addEventListener('click', () => pdfInput.click());
 uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
 uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
@@ -394,7 +473,7 @@ uploadZone.addEventListener('drop', e => {
 pdfInput.addEventListener('change', e => { if (e.target.files[0]) loadPDF(e.target.files[0]); });
 
 async function loadPDF(file) {
-  showProg('PDFを読み込み中...', file.name);
+  showProg('PDFãèª­ã¿è¾¼ã¿ä¸­...', file.name);
   try {
     const buf = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
@@ -402,63 +481,60 @@ async function loadPDF(file) {
     S.totalPages  = pdf.numPages;
     S.included    = Array.from({ length: pdf.numPages }, (_, i) => i + 1);
     S.pdfFileName = file.name;
-
     const info = document.getElementById('pdf-info');
     info.style.display = 'block';
-    info.textContent = `✅ 「${file.name}」を読み込みました（${pdf.numPages} ページ）`;
-    document.getElementById('btn-1to2').disabled = false;
+    info.textContent = `â ã${file.name}ããèª­ã¿è¾¼ã¿ã¾ããï¼${pdf.numPages} ãã¼ã¸ï¼`;
+    checkStep1Ready();
     hideProg();
-  } catch (e) {
-    hideProg(); alert('PDF読み込みエラー: ' + e.message);
+  } catch(e) {
+    hideProg(); alert('PDFèª­ã¿è¾¼ã¿ã¨ã©ã¼: ' + e.message);
   }
 }
 
+function checkStep1Ready() {
+  const hasPDF = !!S.pdfDoc;
+  document.getElementById('btn-1to2').disabled = !hasPDF;
+}
+
 document.getElementById('btn-1to2').addEventListener('click', async () => {
+  if (!S.pdfDoc) { alert('PDFãé¸æãã¦ãã ããã'); return; }
   await renderThumbs();
   goStep(2);
 });
 
-// ═══════════════════════════════════════════════
-// STEP 2 : ページ選択
-// ═══════════════════════════════════════════════
+// ââââââââââââââââââââââââââââââââââââââââââââââââ
+// STEP 2 : ãã¼ã¸é¸æ
+// ââââââââââââââââââââââââââââââââââââââââââââââââ
 async function renderThumbs() {
-  showProg('ページをプレビュー中...', '');
+  showProg('ãã¼ã¸ããã¬ãã¥ã¼ä¸­...', '');
   const grid = document.getElementById('page-grid');
   grid.innerHTML = '';
   S.thumbCanvases = {};
-
   for (let p = 1; p <= S.totalPages; p++) {
-    updProg('ページをプレビュー中...', `${p} / ${S.totalPages}`);
+    updProg('ãã¼ã¸ããã¬ãã¥ã¼ä¸­...', `${p} / ${S.totalPages}`);
     const page     = await S.pdfDoc.getPage(p);
     const viewport = page.getViewport({ scale: 0.35 });
     const canvas   = document.createElement('canvas');
-    canvas.width   = viewport.width;
-    canvas.height  = viewport.height;
+    canvas.width = viewport.width; canvas.height = viewport.height;
     await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
     S.thumbCanvases[p] = canvas;
-
     const thumb = document.createElement('div');
     thumb.className = 'page-thumb selected';
     thumb.dataset.page = p;
     thumb.appendChild(canvas.cloneNode(true));
-
-    // ラベルバー
-    const bar   = document.createElement('div');
+    const bar = document.createElement('div');
     bar.className = 'page-thumb-bar';
-    const lbl   = document.createElement('span');
+    const lbl = document.createElement('span');
     lbl.textContent = `P${p}`;
     const badge = document.createElement('span');
     badge.className = p === 1 ? 'pt-badge summary' : 'pt-badge';
-    badge.textContent = p === 1 ? 'サマリー' : `店舗`;
+    badge.textContent = p === 1 ? 'ãµããªã¼' : `åºè`;
     badge.dataset.role = p === 1 ? 'summary' : 'store';
     bar.append(lbl, badge);
     thumb.appendChild(bar);
-
-    // チェックマーク
     const chk = document.createElement('div');
-    chk.className = 'pt-check'; chk.textContent = '✓';
+    chk.className = 'pt-check'; chk.textContent = 'â';
     thumb.appendChild(chk);
-
     thumb.addEventListener('click', () => toggleThumb(thumb, p));
     grid.appendChild(thumb);
   }
@@ -471,14 +547,14 @@ function toggleThumb(thumb, p) {
   if (on) {
     S.included = S.included.filter(x => x !== p);
     thumb.classList.replace('selected', 'excluded');
-    thumb.querySelector('.pt-check').textContent = '✕';
+    thumb.querySelector('.pt-check').textContent = 'â';
     const b = thumb.querySelector('.pt-badge');
-    b.className = 'pt-badge excl'; b.textContent = '除外';
+    b.className = 'pt-badge excl'; b.textContent = 'é¤å¤';
   } else {
     S.included.push(p);
     S.included.sort((a, b) => a - b);
     thumb.classList.replace('excluded', 'selected');
-    thumb.querySelector('.pt-check').textContent = '✓';
+    thumb.querySelector('.pt-check').textContent = 'â';
   }
   refreshBadges();
 }
@@ -491,26 +567,26 @@ function refreshBadges() {
     const pos = inc.indexOf(p) + 1;
     const b = thumb.querySelector('.pt-badge');
     if (b.classList.contains('excl')) return;
-    if (pos === 1) { b.className = 'pt-badge summary'; b.textContent = 'サマリー'; }
-    else           { b.className = 'pt-badge';          b.textContent = `店舗 ${pos - 1}`; }
+    if (pos === 1) { b.className = 'pt-badge summary'; b.textContent = 'ãµããªã¼'; }
+    else           { b.className = 'pt-badge';          b.textContent = `åºè ${pos - 1}`; }
   });
 }
 
 document.getElementById('btn-2back').addEventListener('click', () => goStep(1));
 document.getElementById('btn-2to3').addEventListener('click', () => {
-  if (S.included.length < 1) { alert('最低1ページ選択してください。'); return; }
+  if (S.included.length < 1) { alert('æä½1ãã¼ã¸é¸æãã¦ãã ããã'); return; }
   initBasicForm(); goStep(3);
 });
 
-// ═══════════════════════════════════════════════
-// STEP 3 : 基本情報
-// ═══════════════════════════════════════════════
+// ââââââââââââââââââââââââââââââââââââââââââââââââ
+// STEP 3 : åºæ¬æå ±
+// ââââââââââââââââââââââââââââââââââââââââââââââââ
 function initBasicForm() {
   if (!document.getElementById('f-date').value) {
     const t = new Date();
     document.getElementById('f-date').value = t.toISOString().split('T')[0];
     document.getElementById('f-datelabel').value =
-      `${t.getFullYear()}年${t.getMonth()+1}月${t.getDate()}日`;
+      `${t.getFullYear()}ò´${t.getMonth()+1}æ${t.getDate()}æ¥`;
   }
 }
 
@@ -518,15 +594,15 @@ document.getElementById('f-date').addEventListener('change', e => {
   const d = new Date(e.target.value + 'T00:00:00');
   if (!isNaN(d)) {
     document.getElementById('f-datelabel').value =
-      `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+      `${d.getFullYear()}å¹´${d.getMonth()+1}æ${d.getDate()}æ¥`;
   }
   autoId();
 });
 document.getElementById('f-author').addEventListener('input', autoId);
 
 function autoId() {
-  const ym  = (document.getElementById('f-date').value || '').replace(/-/g, '').slice(0, 6);
-  const au  = document.getElementById('f-author').value.trim().slice(0, 8).replace(/\s+/g, '');
+  const ym = (document.getElementById('f-date').value || '').replace(/-/g,'').slice(0,6);
+  const au = document.getElementById('f-author').value.trim().slice(0,8).replace(/\s+/g,'');
   if (ym && au) document.getElementById('f-id').value = `${ym}-${au}`;
 }
 
@@ -537,73 +613,70 @@ document.getElementById('btn-3to4').addEventListener('click', () => {
   const area   = document.getElementById('f-area').value.trim();
   const id     = document.getElementById('f-id').value.trim();
   if (!author || !date || !area || !id) {
-    alert('作成者名・視察日・エリア・報告書IDは必須です。'); return;
+    alert('ä½æèåã»è¦å¯æ¥ã»ã¨ãªã¢ã»å ±åæ¸IDã¯å¿é ã§ãã'); return;
   }
   buildStoreForms(); goStep(4);
 });
 
-// ═══════════════════════════════════════════════
-// STEP 4 : 店舗情報
-// ═══════════════════════════════════════════════
+// ââââââââââââââââââââââââââââââââââââââââââââââââ
+// STEP 4 : åºèæå ±
+// ââââââââââââââââââââââââââââââââââââââââââââââââ
 function buildStoreForms() {
   const container = document.getElementById('store-forms');
   container.innerHTML = '';
-  const storePDFPages = S.included.slice(1); // summary を除く
-
+  const storePDFPages = S.included.slice(1);
   if (storePDFPages.length === 0) {
-    container.innerHTML = '<p style="color:var(--gray-500);font-size:.85rem;">サマリーページのみです。</p>';
+    container.innerHTML = '<p style="color:var(--gray-500);font-size:.85rem;">ãµããªã¼ãã¼ã¸ã®ã¿ã§ãã</p>';
     return;
   }
-
   storePDFPages.forEach((pdfP, idx) => {
     const storeN   = idx + 1;
-    const savedPg  = idx + 2;   // page_2.jpg, page_3.jpg ...
+    const savedPg  = idx + 2;
     const canvas   = S.thumbCanvases[pdfP];
     const previewSrc = thumbToDataURL(canvas);
-
     const div = document.createElement('div');
     div.className = 'store-card';
     div.dataset.savedPage = savedPg;
     div.innerHTML = `
       <div class="store-card-hd">
-        <span>🏪 店舗 ${storeN}　（page_${savedPg}.jpg）</span>
+        <span>ðª åºè ${storeN}ãï¼page_${savedPg}.jpgï¼</span>
       </div>
       <div class="store-preview-wrap">
         <div>
           <img src="${previewSrc}" class="store-preview-img" alt="P${pdfP}">
-          <p style="font-size:.65rem;color:var(--gray-400);text-align:center;margin-top:4px;">PDFページ ${pdfP}</p>
+          <p style="font-size:.65rem;color:var(--gray-400);text-align:center;margin-top:4px;">PDFãã¼ã¸ ${pdfP}</p>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <div class="fg">
-            <label class="fl">店舗名 <span style="color:var(--red)">*</span></label>
-            <input type="text" class="fi s-name" placeholder="イオン広島店">
+            <label class="fl">åºèå <span style="color:var(--red)">*</span></label>
+            <input type="text" class="fi s-name" placeholder="ã¤ãªã³åºå³¶åº">
           </div>
           <div class="fg">
-            <label class="fl">視察時間 <span class="hint">例: 10:00〜11:00</span></label>
-            <input type="text" class="fi s-time" placeholder="10:00〜11:00">
+            <label class="fl">è¦å¯æé <span class="hint">ä¾: 10:00ã11:00</span></label>
+            <input type="text" class="fi s-time" placeholder="10:00ã11:00">
           </div>
         </div>
       </div>
       <div class="form-row">
         <div class="fg">
-          <label class="fl">住所</label>
-          <input type="text" class="fi s-addr" placeholder="広島県広島市西区">
+          <label class="fl">ä½æ</label>
+          <input type="text" class="fi s-addr" placeholder="åºå³¶çåºå³¶å¸è¥¿åº">
         </div>
         <div class="fg">
-          <label class="fl">備考 <span class="hint">オープン日など</span></label>
+          <label class="fl">åè <span class="hint">ãªã¼ãã³æ¥ãªã©</span></label>
           <input type="text" class="fi s-note" placeholder="">
         </div>
       </div>
       <div class="form-row c1">
         <div class="fg">
-          <label class="fl">印象・メモ</label>
-          <textarea class="fta s-imp" rows="3" placeholder="店舗の印象や特徴..."></textarea>
+          <label class="fl">å°è±¡ã»ã¡ã¢</label>
+          <textarea class="fta s-imp" rows="3" placeholder="åºèã®å°è±¡ãç¹å¾´..."></textarea>
         </div>
       </div>
       <div class="form-row c1">
         <div class="fg">
-          <label class="fl">タグ <span class="hint">カンマ区切り、例: 節分, POP, 新店</span></label>
-          <input type="text" class="fi s-tags" placeholder="節分, POP, 新店">
+          <label class="fl">ã¿ã° <span class="hint">ã«ã³ãåºåããä¾: ç¯å, POP, æ°åº</span></label>
+          <input type="text" class="fi s-tags" placeholder="ç¯å, POP, æ°åº">
         </div>
       </div>
     `;
@@ -621,13 +694,43 @@ function thumbToDataURL(canvas) {
 
 document.getElementById('btn-4back').addEventListener('click', () => goStep(3));
 
-// ═══════════════════════════════════════════════
-// STEP 5 : 保存
-// ═══════════════════════════════════════════════
+// ââââââââââââââââââââââââââââââââââââââââââââââââ
+// STEP 5 : ä¿å­ï¼GitHub APIï¼
+// ââââââââââââââââââââââââââââââââââââââââââââââââ
 document.getElementById('btn-save').addEventListener('click', async () => {
   if (!collectStores()) return;
   collectBasic();
-  await saveAll();
+
+  // ãã¼ã¯ã³ç¢ºèª
+  const token = S.githubToken || document.getElementById('f-token').value.trim();
+  if (!token) {
+    alert('GitHubãã¼ã¯ã³ãå¥åãã¦ãã ããï¼STEP 1ã§è¨­å®ï¼ã');
+    return;
+  }
+  S.githubToken = token;
+
+  document.getElementById('btn-save').disabled = true;
+  document.getElementById('save-btn-label').textContent = 'â³ ä¿å­ä¸­...';
+
+  const reportData = { ...S.basic, stores: S.stores };
+  try {
+    await saveToGitHub(reportData, token);
+    hideProg();
+    const msgEl = document.getElementById('success-msg');
+    msgEl.innerHTML = `
+      <strong>reports/${S.reportId}/</strong> ã« ${S.included.length} æã®ç»åãPushãã¾ããã<br>
+      <strong>data/reports_data.js</strong> ãæ´æ°ãã¾ããã<br><br>
+      GitHub Pagesã¸ã®åæ ã¾ã§ <strong>1ã2å</strong> ãããã¾ãã<br>
+      <small style="color:var(--gray-400);">ãã©ã¦ã¶ã®ã­ã£ãã·ã¥ãæ¶å»ããããã·ã¼ã¯ã¬ããã¢ã¼ãã§ç¢ºèªãã¦ãã ããã</small>
+    `;
+    goStep(5);
+  } catch(e) {
+    hideProg();
+    console.error(e);
+    alert('ä¿å­ã«å¤±æãã¾ãã:\n' + e.message);
+    document.getElementById('btn-save').disabled = false;
+    document.getElementById('save-btn-label').textContent = 'ð¤ãGitHubã«ä¿å­ãã';
+  }
 });
 
 function collectBasic() {
@@ -652,15 +755,13 @@ function collectStores() {
   const cards = document.querySelectorAll('.store-card');
   for (const c of cards) {
     const name = c.querySelector('.s-name').value.trim();
-    if (!name) { alert('すべての店舗名を入力してください。'); c.querySelector('.s-name').focus(); return false; }
-    const addr  = c.querySelector('.s-addr').value.trim();
-    const tags  = c.querySelector('.s-tags').value.split(',').map(t => t.trim()).filter(Boolean);
-    const safeId = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-\u3040-\u30ff\u4e00-\u9fff]/g, '').slice(0, 30) || `store${S.stores.length+1}`;
+    if (!name) { alert('ãã¹ã¦ã®åºèåãå¥åãã¦ãã ããã'); c.querySelector('.s-name').focus(); return false; }
+    const addr = c.querySelector('.s-addr').value.trim();
+    const tags = c.querySelector('.s-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+    const safeId = name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-\u3040-\u30ff\u4e00-\u9fff]/g,'').slice(0,30) || `store${S.stores.length+1}`;
     S.stores.push({
-      id: safeId,
-      name,
-      address: addr,
-      mapsUrl: addr ? `https://maps.google.com/?q=${encodeURIComponent(name + ' ' + addr)}` : '',
+      id: safeId, name, address: addr,
+      mapsUrl: addr ? `https://maps.google.com/?q=${encodeURIComponent(name+' '+addr)}` : '',
       time:       c.querySelector('.s-time').value.trim(),
       note:       c.querySelector('.s-note').value.trim(),
       impression: c.querySelector('.s-imp').value.trim(),
@@ -671,97 +772,58 @@ function collectStores() {
   return true;
 }
 
-async function saveAll() {
-  document.getElementById('btn-save').disabled = true;
-  document.getElementById('save-btn-label').textContent = '⏳ 保存中...';
+// ââ GitHub API ãã«ãã¼ ââââââââââââââââââââââââââ
+async function ghGet(path, token) {
+  const r = await fetch(
+    `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}?ref=${GH_BRANCH}`,
+    { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' } }
+  );
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error(`GET ${path} â ${r.status}`);
+  return r.json();
+}
 
-  const reportData = { ...S.basic, stores: S.stores };
-
-  try {
-    if (S.dirHandle) {
-      showProg('保存中...', '準備しています');
-      await saveToFS(reportData);
-    } else {
-      showProg('ダウンロード中...', '');
-      await downloadFallback(reportData);
+async function ghPut(path, b64content, sha, message, token) {
+  const body = { message, content: b64content, branch: GH_BRANCH };
+  if (sha) body.sha = sha;
+  const r = await fetch(
+    `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`,
+    {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify(body)
     }
-    hideProg();
-
-    const msgEl = document.getElementById('success-msg');
-    msgEl.innerHTML = S.dirHandle
-      ? `<strong>reports/${S.reportId}/</strong> に ${S.included.length} 枚の画像を保存し、<br><strong>data/reports_data.js</strong> を更新しました。<br><br>サイトを開いて確認してください。`
-      : `画像ファイル（${S.included.length}枚）とデータファイルをダウンロードしました。<br>reports/${S.reportId}/ フォルダに画像を配置し、<br>reports_data.js に新しいデータを追記してください。`;
-
-    goStep(5);
-  } catch (e) {
-    hideProg();
-    console.error(e);
-    alert('保存に失敗しました:\n' + e.message);
-    document.getElementById('btn-save').disabled = false;
-    document.getElementById('save-btn-label').textContent = '💾　保存する';
-  }
+  );
+  if (!r.ok) { const t = await r.text(); throw new Error(`PUT ${path} â ${r.status}: ${t}`); }
+  return r.json();
 }
 
-// ── ファイルシステムへの書き込み ──────────────────────
-async function saveToFS(reportData) {
-  updProg('保存中...', 'フォルダを作成しています');
-  const reportsDir = await S.dirHandle.getDirectoryHandle('reports', { create: true });
-  const reportDir  = await reportsDir.getDirectoryHandle(S.reportId, { create: true });
+async function blobToBase64(blob) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = () => res(reader.result.split(',')[1]);
+    reader.onerror = rej;
+    reader.readAsDataURL(blob);
+  });
+}
 
+// ââ GitHubä¿å­ã¡ã¤ã³ ââââââââââââââââââââââââââââ
+async function saveToGitHub(reportData, token) {
   const inc = [...S.included].sort((a, b) => a - b);
+
+  // 1. ç»åãã¢ããã­ã¼ã
+  showProg('GitHubã«Pushä¸­...', 'ç»åãå¤æã»ã¢ããã­ã¼ããã¦ãã¾ã');
+  addProgLog(`å¯¾è±¡: ${inc.length} ãã¼ã¸`);
+
   for (let i = 0; i < inc.length; i++) {
     const pdfP     = inc[i];
     const savedNum = i + 1;
-    updProg('保存中...', `画像を変換中: page_${savedNum}.jpg (${i+1}/${inc.length})`);
+    const path     = `reports/${S.reportId}/page_${savedNum}.jpg`;
 
-    // 高解像度レンダリング
-    const page  = await S.pdfDoc.getPage(pdfP);
-    const vp    = page.getViewport({ scale: 2.0 });
-    const cv    = document.createElement('canvas');
-    cv.width = vp.width; cv.height = vp.height;
-    await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+    updProg(null, `[${i+1}/${inc.length}] ${path}`);
+    addProgLog(`å¤æä¸­: page_${savedNum}.jpf...`);
 
-    const blob   = await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.85));
-    const fh     = await reportDir.getFileHandle(`page_${savedNum}.jpg`, { create: true });
-    const writer = await fh.createWritable();
-    await writer.write(await blob.arrayBuffer());
-    await writer.close();
-  }
-
-  updProg('保存中...', 'reports_data.js を更新しています');
-  await updateReportsJS(reportData);
-}
-
-async function updateReportsJS(newReport) {
-  const dataDir = await S.dirHandle.getDirectoryHandle('data');
-  const fh      = await dataDir.getFileHandle('reports_data.js');
-  const text    = await (await fh.getFile()).text();
-
-  let existing = [];
-  const m = text.match(/window\.REPORTS_DATA\s*=\s*(\[[\s\S]*?\]);/);
-  if (m) { try { existing = JSON.parse(m[1]); } catch(e) {} }
-
-  const idx = existing.findIndex(r => r.id === newReport.id);
-  if (idx >= 0) existing[idx] = newReport;
-  else          existing.unshift(newReport);
-  existing.sort((a, b) => (b.date||'').localeCompare(a.date||''));
-
-  const now = new Date().toLocaleString('ja-JP');
-  const content = `// ============================================================\n// 報告書データ - このファイルは add_report.py が自動生成します\n// 手動で編集する場合は下記の構造に従ってください\n// 最終更新: ${now}\n// ============================================================\nwindow.REPORTS_DATA = ${JSON.stringify(existing, null, 2)};\n`;
-
-  const writer = await fh.createWritable();
-  await writer.write(new TextEncoder().encode(content));
-  await writer.close();
-}
-
-// ── フォルダ未選択時のダウンロード ────────────────────
-async function downloadFallback(reportData) {
-  const inc = [...S.included].sort((a, b) => a - b);
-  for (let i = 0; i < inc.length; i++) {
-    const pdfP     = inc[i];
-    const savedNum = i + 1;
-    updProg('ダウンロード中...', `page_${savedNum}.jpg (${i+1}/${inc.length})`);
-
+    // é«è§£ååº¦ã¬ã³ããªã³ã°
     const page = await S.pdfDoc.getPage(pdfP);
     const vp   = page.getViewport({ scale: 2.0 });
     const cv   = document.createElement('canvas');
@@ -769,25 +831,48 @@ async function downloadFallback(reportData) {
     await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
 
     const blob = await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.85));
-    const a    = Object.assign(document.createElement('a'), {
-      href: URL.createObjectURL(blob),
-      download: `${S.reportId}_page_${savedNum}.jpg`,
-    });
-    a.click(); URL.revokeObjectURL(a.href);
-    await new Promise(r => setTimeout(r, 600));
+    const b64  = await blobToBase64(blob);
+
+    addProgLog(`Push: ${path} (${Math.round(blob.size/1024)}KB)`);
+    const existing = await ghGet(path, token);
+    await ghPut(path, b64, existing?.sha, `Add ${path} for report ${S.reportId}`, token);
+    addProgLog(`â ${path} å®äº`);
   }
-  // データJS
-  const content = `// 以下を reports_data.js の配列先頭に追加してください\n${JSON.stringify(reportData, null, 2)}\n`;
-  const a = Object.assign(document.createElement('a'), {
-    href: URL.createObjectURL(new Blob([content], { type: 'text/plain' })),
-    download: `${S.reportId}_data.txt`,
-  });
-  a.click(); URL.revokeObjectURL(a.href);
+
+  // 2. reports_data.js ãæ´æ°
+  updProg('reports_data.js ãæ´æ°ä¸­...', '');
+  addProgLog('reports_data.js ãåå¾ä¸­...');
+
+  const jsFile = await ghGet('data/reports_data.js', token);
+  if (!jsFile) throw new Error('data/reports_data.js ãè¦ã¤ããã¾ãã');
+
+  const currentContent = decodeURIComponent(escape(atob(jsFile.content.replace(/\n/g,''))));
+  const match = currentContent.match(/window\.REPORTS_DATA\s*=\s*(\[[\s\S]*?\]);/);
+  if (!match) throw new Error('reports_data.js ã®ãã©ã¼ããããä¸æ­£ã§ã');
+
+  let arr = JSON.parse(match[1]);
+  const idx = arr.findIndex(r => r.id === reportData.id);
+  if (idx >= 0) {
+    arr[idx] = reportData;
+    addProgLog(`æ¢å­ã¨ã³ããªãæ´æ°: ${reportData.id}`);
+  } else {
+    arr.unshift(reportData);
+    addProgLog(`æ°è¦ã¨ã³ããªãè¿½å : ${reportData.id}`);
+  }
+  arr.sort((a, b) => (b.date||'').localeCompare(a.date||''));
+
+  const newContent = `// ============================================================\n// TOKO å ±åæ¸ãã¼ã¿\n// ============================================================\nwindow.REPORTS_DATA = ${JSON.stringify(arr, null, 2)};\n`;
+  const encoded = btoa(unescape(encodeURIComponent(newContent)));
+
+  await ghPut('data/reports_data.js', encoded, jsFile.sha,
+    `Add report ${reportData.id} (${reportData.author} - ${reportData.area})`, token);
+  addProgLog('â reports_data.js æ´æ°å®äº');
 }
 
-// ── リセット ────────────────────────────────────────
+// ââ ãªã»ãã ââââââââââââââââââââââââââââââââââââ
 document.getElementById('btn-another').addEventListener('click', () => {
-  S = { dirHandle: S.dirHandle, pdfDoc: null, totalPages: 0, included: [], thumbCanvases: {}, reportId: '', basic: {}, stores: [] };
+  const savedToken = S.githubToken;
+  S = { githubToken: savedToken, pdfDoc: null, totalPages: 0, included: [], thumbCanvases: {}, reportId: '', basic: {}, stores: [] };
   pdfInput.value = '';
   document.getElementById('pdf-info').style.display = 'none';
   document.getElementById('btn-1to2').disabled = true;
@@ -795,9 +880,8 @@ document.getElementById('btn-another').addEventListener('click', () => {
   ['f-author','f-dept','f-date','f-datelabel','f-area','f-purpose','f-impression','f-tags','f-id']
     .forEach(id => document.getElementById(id).value = '');
   document.getElementById('btn-save').disabled = false;
-  document.getElementById('save-btn-label').textContent = '💾　保存する';
+  document.getElementById('save-btn-label').textContent = 'ð¤ãGitHubã«ä¿å­ãã';
   goStep(1);
-  updateStepUI(1, 'active');
 });
 </script>
 </body>
