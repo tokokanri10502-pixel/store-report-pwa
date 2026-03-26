@@ -55,8 +55,8 @@
     /* ── LOGIN ── */
     #login-screen { background: linear-gradient(145deg, var(--blue-dark), var(--blue-main) 60%, var(--blue-mid)); align-items: center; justify-content: center; padding: 24px; }
     .login-card { background: rgba(255,255,255,.97); border-radius: 20px; padding: 40px 32px 36px; width: 100%; max-width: 380px; box-shadow: var(--shadow-lg); text-align: center; }
-    .login-icon { width: 64px; height: 64px; background: linear-gradient(135deg, var(--blue-main), var(--blue-mid)); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
-    .login-icon svg { width: 32px; height: 32px; fill: #fff; }
+    .login-icon { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+    .login-icon img { width: 80px; height: 80px; object-fit: contain; }
     .login-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
     .login-sub { font-size: .82rem; color: var(--gray-500); margin-bottom: 28px; }
     .login-label { display: block; text-align: left; font-size: .8rem; font-weight: 600; color: var(--gray-700); margin-bottom: 6px; }
@@ -243,7 +243,7 @@
 <div id="login-screen" class="screen active">
   <div class="login-card">
     <div class="login-icon">
-      <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      <img src="icon.png" alt="TOKO ロゴ">
     </div>
     <div class="login-title">TOKO店舗視察レポート</div>
     <div class="login-sub">社内閲覧システム ・ 関係者限定</div>
@@ -257,7 +257,8 @@
 <!-- ======== REPORTS LIST ======== -->
 <div id="reports-screen" class="screen">
   <div class="app-header">
-    <div class="header-title">TOKO店舗視察レポート</div>    <button class="btn-logout" onclick="doLogout()">ログアウト</button>
+    <div class="header-title">TOKO店舗視察レポート</div>
+    <button class="btn-logout" onclick="doLogout()">ログアウト</button>
   </div>
   <div id="install-banner">
     <div class="install-text">ホーム画面に追加するといつでも開けます</div>
