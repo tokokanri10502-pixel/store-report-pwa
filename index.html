@@ -393,7 +393,7 @@ async function doLogin() {
   if (await sha256(pw) === HASH) {
     sessionStorage.setItem('auth','1');
     document.getElementById('login-error').classList.remove('show');
-    initReports().then(() => showScreen('reports-screen'));
+    showScreen('reports-screen'); initReports();
   } else {
     document.getElementById('login-error').classList.add('show');
     document.getElementById('pw-input').select();
@@ -421,8 +421,10 @@ function backToReport()  { currentStoreId = null; showScreen('report-screen'); }
 //  REPORTS LIST
 // ═══════════════════════════════════════════════════
 async function initReports() {
-  await loadAllComments();
   buildFilterChips();
+  renderReportCards();
+  renderAllCardStats();
+  await loadAllComments();
   renderReportCards();
   renderAllCardStats();
 }
@@ -740,6 +742,8 @@ function showStore(reportId, storeId) {
   document.getElementById('store-detail-sub').textContent = `${r.dateLabel}　${s.time}　${s.address}`;
   document.getElementById('maps-link-detail').href = s.mapsUrl;
   renderLikeDetail();
+  const cmtEl = document.getElementById('comment-list');
+  if (cmtEl) cmtEl.innerHTML = '<div class="cmt-empty">読み込み中...</div>';
   loadStoreComments(reportId, storeId).then(() => renderComments(reportId, storeId));
   showScreen('store-screen');
 }
@@ -1044,7 +1048,7 @@ async function generateTagSheet() {
 // ═══════════════════════════════════════════════════
 //  BOOT
 // ═══════════════════════════════════════════════════
-if (sessionStorage.getItem('auth') === '1') { initReports().then(() => showScreen('reports-screen')); }
+if (sessionStorage.getItem('auth') === '1') { showScreen('reports-screen'); initReports(); }
 
 // Service Worker
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
