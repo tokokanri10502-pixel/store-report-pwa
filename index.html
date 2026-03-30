@@ -227,6 +227,17 @@
     .cmt-input:focus { border-color: var(--blue-main); }
     .cmt-submit { background: var(--blue-main); color: #fff; border: none; border-radius: var(--radius); padding: 0 14px; font-size: .8rem; font-weight: 700; cursor: pointer; flex-shrink: 0; }
 
+    /* ── DELETE CONFIRM DIALOG ── */
+    #delete-dialog-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 999; align-items: center; justify-content: center; }
+    #delete-dialog-overlay.show { display: flex; }
+    .delete-dialog { background: #fff; border-radius: 16px; padding: 24px 20px 16px; width: 280px; text-align: center; }
+    .delete-dialog-title { font-size: .95rem; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
+    .delete-dialog-msg { font-size: .82rem; color: var(--gray-500); margin-bottom: 20px; line-height: 1.5; }
+    .delete-dialog-btns { display: flex; gap: 10px; }
+    .delete-dialog-btns button { flex: 1; padding: 10px 0; border-radius: 10px; border: none; font-size: .88rem; font-weight: 700; cursor: pointer; }
+    .btn-cancel-del { background: var(--gray-100); color: var(--gray-700); }
+    .btn-confirm-del { background: #ef4444; color: #fff; }
+
     /* ── INSTALL BANNER ── */
     #install-banner { display: none; background: var(--blue-dark); color: #fff; padding: 10px 16px; font-size: .78rem; align-items: center; gap: 10px; flex-shrink: 0; }
     #install-banner.show { display: flex; }
@@ -329,12 +340,24 @@
       </div>
       <div class="cmt-list" id="comment-list"></div>
       <div class="cmt-form">
-        <textarea class="cmt-input" id="comment-input" placeholder="気づきやコメントを入力... (Enterで送信)" rows="1"
+        <textarea class="cmt-input" id="comment-input" placeholder="気づきやコメントを入力... (Shift+Enterで送信)" rows="1"
           oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
         <button class="cmt-submit" onclick="submitComment()">送信</button>
       </div>
     </div>
     <div style="height:24px"></div>
+  </div>
+</div>
+
+<!-- ======== DELETE CONFIRM DIALOG ======== -->
+<div id="delete-dialog-overlay">
+  <div class="delete-dialog">
+    <div class="delete-dialog-title">コメントを削除</div>
+    <div class="delete-dialog-msg">このコメントを削除します。<br>よろしいですか？</div>
+    <div class="delete-dialog-btns">
+      <button class="btn-cancel-del" onclick="closeDeleteDialog()">キャンセル</button>
+      <button class="btn-confirm-del" onclick="confirmDelete()">削除する</button>
+    </div>
   </div>
 </div>
 
@@ -826,7 +849,22 @@ async function submitComment() {
   updateCmtBadge(currentReportId, currentStoreId);
 }
 
-async function deleteComment(rId, sId, commentId) {
+let _pendingDelete = null;
+
+function deleteComment(rId, sId, commentId) {
+  _pendingDelete = { rId, sId, commentId };
+  document.getElementById('delete-dialog-overlay').classList.add('show');
+}
+
+function closeDeleteDialog() {
+  _pendingDelete = null;
+  document.getElementById('delete-dialog-overlay').classList.remove('show');
+}
+
+async function confirmDelete() {
+  if (!_pendingDelete) return;
+  const { rId, sId, commentId } = _pendingDelete;
+  closeDeleteDialog();
   await sb.from('store_report_comments').delete().eq('id', commentId);
   const key = cmtCacheKey(rId, sId);
   commentsCache[key] = (commentsCache[key] || []).filter(c => c.id !== commentId);
@@ -857,7 +895,7 @@ function updateCmtBadge(rId, sId) {
 }
 
 document.getElementById('comment-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment(); }
+  if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); submitComment(); }
 });
 
 function esc(str) {
