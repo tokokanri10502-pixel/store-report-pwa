@@ -350,7 +350,7 @@
 </div>
 
 <!-- ======== DELETE CONFIRM DIALOG ======== -->
-<div id="delete-dialog-overlay">
+<div id="delete-dialog-overlay" onclick="onDeleteOverlayClick(event)">
   <div class="delete-dialog">
     <div class="delete-dialog-title">コメントを削除</div>
     <div class="delete-dialog-msg">このコメントを削除します。<br>よろしいですか？</div>
@@ -767,7 +767,11 @@ function showStore(reportId, storeId) {
   renderLikeDetail();
   const cmtEl = document.getElementById('comment-list');
   if (cmtEl) cmtEl.innerHTML = '<div class="cmt-empty">読み込み中...</div>';
-  loadStoreComments(reportId, storeId).then(() => renderComments(reportId, storeId));
+  loadStoreComments(reportId, storeId).then(() => {
+    if (currentReportId === reportId && currentStoreId === storeId) {
+      renderComments(reportId, storeId);
+    }
+  });
   showScreen('store-screen');
 }
 
@@ -832,14 +836,20 @@ async function loadStoreComments(rId, sId) {
   }));
 }
 
+let _submitting = false;
 async function submitComment() {
-  if (!currentReportId || !currentStoreId) return;
+  if (!currentReportId || !currentStoreId || _submitting) return;
   const inp = document.getElementById('comment-input');
   const text = inp.value.trim();
   if (!text) return;
+  _submitting = true;
+  const btn = document.querySelector('.cmt-submit');
+  if (btn) btn.disabled = true;
   const { data, error } = await sb.from('store_report_comments')
     .insert({ report_id: currentReportId, store_id: currentStoreId, text })
     .select().single();
+  _submitting = false;
+  if (btn) btn.disabled = false;
   if (error) { console.error(error); return; }
   const key = cmtCacheKey(currentReportId, currentStoreId);
   if (!commentsCache[key]) commentsCache[key] = [];
@@ -859,6 +869,10 @@ function deleteComment(rId, sId, commentId) {
 function closeDeleteDialog() {
   _pendingDelete = null;
   document.getElementById('delete-dialog-overlay').classList.remove('show');
+}
+
+function onDeleteOverlayClick(e) {
+  if (e.target === document.getElementById('delete-dialog-overlay')) closeDeleteDialog();
 }
 
 async function confirmDelete() {
