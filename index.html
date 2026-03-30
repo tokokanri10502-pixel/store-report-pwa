@@ -368,6 +368,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ═══════════════════════════════════════════════════
 //  STATE
@@ -392,8 +393,7 @@ async function doLogin() {
   if (await sha256(pw) === HASH) {
     sessionStorage.setItem('auth','1');
     document.getElementById('login-error').classList.remove('show');
-    initReports();
-    showScreen('reports-screen');
+    initReports().then(() => showScreen('reports-screen'));
   } else {
     document.getElementById('login-error').classList.add('show');
     document.getElementById('pw-input').select();
@@ -420,7 +420,8 @@ function backToReport()  { currentStoreId = null; showScreen('report-screen'); }
 // ═══════════════════════════════════════════════════
 //  REPORTS LIST
 // ═══════════════════════════════════════════════════
-function initReports() {
+async function initReports() {
+  await loadAllComments();
   buildFilterChips();
   renderReportCards();
   renderAllCardStats();
@@ -739,7 +740,7 @@ function showStore(reportId, storeId) {
   document.getElementById('store-detail-sub').textContent = `${r.dateLabel}　${s.time}　${s.address}`;
   document.getElementById('maps-link-detail').href = s.mapsUrl;
   renderLikeDetail();
-  renderComments(reportId, storeId);
+  loadStoreComments(reportId, storeId).then(() => renderComments(reportId, storeId));
   showScreen('store-screen');
 }
 
@@ -773,29 +774,58 @@ function renderLikeDetail() {
 }
 
 // ═══════════════════════════════════════════════════
-//  COMMENTS
+//  SUPABASE + COMMENTS
 // ═══════════════════════════════════════════════════
-function cmtKey(rId, sId) { return `cmt_${rId}_${sId}`; }
-function getComments(rId, sId) { try { return JSON.parse(localStorage.getItem(cmtKey(rId,sId))||'[]'); } catch { return []; } }
-function saveComments(rId, sId, arr) { localStorage.setItem(cmtKey(rId,sId), JSON.stringify(arr)); }
+const sb = supabase.createClient(
+  'https://eikjognegxcvvwuqeovz.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpa2pvZ25lZ3hjdnZ3dXFlb3Z6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MDE3MTAsImV4cCI6MjA4OTk3NzcxMH0.qLhlR8HbbrGkzocWyKKSG_z4wgrqL78tmztoJoWHSNg'
+);
 
-function submitComment() {
+// キャッシュ: { 'rId_sId': [{id, text, ts}, ...] }
+let commentsCache = {};
+function cmtCacheKey(rId, sId) { return `${rId}_${sId}`; }
+function getComments(rId, sId) { return commentsCache[cmtCacheKey(rId, sId)] || []; }
+
+async function loadAllComments() {
+  const { data } = await sb.from('store_report_comments').select('*');
+  commentsCache = {};
+  (data || []).forEach(row => {
+    const key = cmtCacheKey(row.report_id, row.store_id);
+    if (!commentsCache[key]) commentsCache[key] = [];
+    commentsCache[key].push({ id: row.id, text: row.text, ts: new Date(row.created_at).getTime() });
+  });
+}
+
+async function loadStoreComments(rId, sId) {
+  const { data } = await sb.from('store_report_comments')
+    .select('*').eq('report_id', rId).eq('store_id', sId)
+    .order('created_at', { ascending: true });
+  commentsCache[cmtCacheKey(rId, sId)] = (data || []).map(row => ({
+    id: row.id, text: row.text, ts: new Date(row.created_at).getTime()
+  }));
+}
+
+async function submitComment() {
   if (!currentReportId || !currentStoreId) return;
   const inp = document.getElementById('comment-input');
   const text = inp.value.trim();
   if (!text) return;
-  const arr = getComments(currentReportId, currentStoreId);
-  arr.push({ text, ts: Date.now() });
-  saveComments(currentReportId, currentStoreId, arr);
+  const { data, error } = await sb.from('store_report_comments')
+    .insert({ report_id: currentReportId, store_id: currentStoreId, text })
+    .select().single();
+  if (error) { console.error(error); return; }
+  const key = cmtCacheKey(currentReportId, currentStoreId);
+  if (!commentsCache[key]) commentsCache[key] = [];
+  commentsCache[key].push({ id: data.id, text: data.text, ts: new Date(data.created_at).getTime() });
   inp.value = ''; inp.style.height = 'auto';
   renderComments(currentReportId, currentStoreId);
   updateCmtBadge(currentReportId, currentStoreId);
 }
 
-function deleteComment(rId, sId, idx) {
-  const arr = getComments(rId, sId);
-  arr.splice(idx, 1);
-  saveComments(rId, sId, arr);
+async function deleteComment(rId, sId, commentId) {
+  await sb.from('store_report_comments').delete().eq('id', commentId);
+  const key = cmtCacheKey(rId, sId);
+  commentsCache[key] = (commentsCache[key] || []).filter(c => c.id !== commentId);
   renderComments(rId, sId);
   updateCmtBadge(rId, sId);
 }
@@ -805,11 +835,11 @@ function renderComments(rId, sId) {
   const el = document.getElementById('comment-list');
   if (!el) return;
   if (arr.length === 0) { el.innerHTML = '<div class="cmt-empty">まだコメントはありません</div>'; return; }
-  el.innerHTML = arr.map((c, i) => {
+  el.innerHTML = arr.map(c => {
     const d = new Date(c.ts);
     const ds = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
     return `<div class="cmt-item">
-      <button class="cmt-del" onclick="deleteComment('${rId}','${sId}',${i})">✕</button>
+      <button class="cmt-del" onclick="deleteComment('${rId}','${sId}','${c.id}')">✕</button>
       <div class="cmt-text">${esc(c.text)}</div>
       <div class="cmt-meta">${ds}</div>
     </div>`;
@@ -1014,7 +1044,7 @@ async function generateTagSheet() {
 // ═══════════════════════════════════════════════════
 //  BOOT
 // ═══════════════════════════════════════════════════
-if (sessionStorage.getItem('auth') === '1') { initReports(); showScreen('reports-screen'); }
+if (sessionStorage.getItem('auth') === '1') { initReports().then(() => showScreen('reports-screen')); }
 
 // Service Worker
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
