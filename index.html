@@ -391,7 +391,7 @@ async function sha256(str) {
 async function doLogin() {
   const pw = document.getElementById('pw-input').value;
   if (await sha256(pw) === HASH) {
-    sessionStorage.setItem('auth','1');
+    localStorage.setItem('auth','1');
     document.getElementById('login-error').classList.remove('show');
     showScreen('reports-screen'); initReports();
   } else {
@@ -400,7 +400,7 @@ async function doLogin() {
   }
 }
 function doLogout() {
-  sessionStorage.removeItem('auth');
+  localStorage.removeItem('auth');
   document.getElementById('pw-input').value = '';
   showScreen('login-screen');
 }
@@ -1048,7 +1048,7 @@ async function generateTagSheet() {
 // ═══════════════════════════════════════════════════
 //  BOOT
 // ═══════════════════════════════════════════════════
-if (sessionStorage.getItem('auth') === '1') { showScreen('reports-screen'); initReports(); }
+if (localStorage.getItem('auth') === '1') { showScreen('reports-screen'); initReports(); }
 
 // Service Worker
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
