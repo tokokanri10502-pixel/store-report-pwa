@@ -239,6 +239,12 @@
     .btn-cancel-del { background: var(--gray-100); color: var(--gray-700); }
     .btn-confirm-del { background: #ef4444; color: #fff; }
 
+    /* ── UPDATE BANNER ── */
+    #update-banner { display: none; background: #16a34a; color: #fff; padding: 10px 16px; font-size: .78rem; align-items: center; gap: 10px; flex-shrink: 0; }
+    #update-banner.show { display: flex; }
+    .update-text { flex: 1; line-height: 1.4; }
+    .btn-update { background: #fff; color: #16a34a; border: none; border-radius: 8px; padding: 6px 12px; font-size: .76rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
     /* ── INSTALL BANNER ── */
     #install-banner { display: none; background: var(--blue-dark); color: #fff; padding: 10px 16px; font-size: .78rem; align-items: center; gap: 10px; flex-shrink: 0; }
     #install-banner.show { display: flex; }
@@ -272,6 +278,10 @@
   <div class="app-header">
     <div class="header-title">TOKO店舗視察レポート</div>
     <button class="btn-logout" onclick="doLogout()">ログアウト</button>
+  </div>
+  <div id="update-banner">
+    <div class="update-text">🆕 新しいレポートが<span id="update-count">1</span>件追加されました</div>
+    <button class="btn-update" onclick="applyUpdate()">更新する</button>
   </div>
   <div id="install-banner">
     <div class="install-text">ホーム画面に追加するといつでも開けます</div>
@@ -419,7 +429,7 @@ async function doLogin() {
   if (await sha256(pw) === HASH) {
     localStorage.setItem('auth','1');
     document.getElementById('login-error').classList.remove('show');
-    showScreen('reports-screen'); initReports();
+    showScreen('reports-screen'); initReports(); initPolling();
   } else {
     document.getElementById('login-error').classList.add('show');
     document.getElementById('pw-input').select();
@@ -1104,6 +1114,38 @@ async function generateTagSheet() {
 //  BOOT
 // ═══════════════════════════════════════════════════
 if (localStorage.getItem('auth') === '1') { showScreen('reports-screen'); initReports(); }
+
+// ═══════════════════════════════════════════════════
+//  NEW REPORT POLLING（5分おきに新着チェック）
+// ═══════════════════════════════════════════════════
+let _knownReportIds = new Set();
+
+function initPolling() {
+  (window.REPORTS_DATA || []).forEach(r => _knownReportIds.add(r.id));
+  setInterval(checkForNewReports, 5 * 60 * 1000); // 5分ごと
+}
+
+async function checkForNewReports() {
+  try {
+    const resp = await fetch('./data/reports_data.js?t=' + Date.now());
+    const text = await resp.text();
+    const m = text.match(/window\.REPORTS_DATA\s*=\s*(\[[\s\S]*?\]);/);
+    if (!m) return;
+    const reports = JSON.parse(m[1]);
+    const newReports = reports.filter(r => !_knownReportIds.has(r.id));
+    if (newReports.length > 0) {
+      document.getElementById('update-count').textContent = newReports.length;
+      document.getElementById('update-banner').classList.add('show');
+    }
+  } catch (e) { /* オフライン時は無視 */ }
+}
+
+function applyUpdate() {
+  location.reload();
+}
+
+// ログイン済みならポーリング開始
+if (localStorage.getItem('auth') === '1') initPolling();
 
 // Service Worker
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
