@@ -222,10 +222,11 @@
     .cmt-meta { font-size: .68rem; color: var(--gray-400); }
     .cmt-del { float: right; background: none; border: none; color: var(--gray-400); font-size: .68rem; cursor: pointer; }
     .cmt-empty { font-size: .78rem; color: var(--gray-400); text-align: center; padding: 10px 0; }
-    .cmt-form { display: flex; gap: 8px; }
-    .cmt-input { flex: 1; padding: 9px 12px; border: 1.5px solid var(--gray-200); border-radius: var(--radius); font-size: .84rem; outline: none; resize: none; font-family: inherit; min-height: 40px; max-height: 90px; transition: border-color .2s; }
+    .cmt-form { position: relative; }
+    .cmt-input { width: 100%; padding: 9px 44px 9px 12px; border: 1.5px solid var(--gray-200); border-radius: 20px; font-size: .84rem; outline: none; resize: none; font-family: inherit; min-height: 40px; max-height: 120px; transition: border-color .2s; box-sizing: border-box; }
     .cmt-input:focus { border-color: var(--blue-main); }
-    .cmt-submit { background: var(--blue-main); color: #fff; border: none; border-radius: var(--radius); padding: 0 14px; font-size: .8rem; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+    .cmt-submit { position: absolute; right: 6px; bottom: 6px; width: 30px; height: 30px; background: var(--blue-main); color: #fff; border: none; border-radius: 50%; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: background .2s; }
+    .cmt-submit:disabled { background: var(--gray-300); }
 
     /* ── DELETE CONFIRM DIALOG ── */
     #delete-dialog-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 999; align-items: center; justify-content: center; }
@@ -340,9 +341,11 @@
       </div>
       <div class="cmt-list" id="comment-list"></div>
       <div class="cmt-form">
-        <textarea class="cmt-input" id="comment-input" placeholder="気づきやコメントを入力... (Shift+Enterで送信)" rows="1"
+        <textarea class="cmt-input" id="comment-input" placeholder="コメントを入力... (PCはShift+Enter)" rows="1"
           oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-        <button class="cmt-submit" onclick="submitComment()">送信</button>
+        <button class="cmt-submit" onclick="submitComment()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        </button>
       </div>
     </div>
     <div style="height:24px"></div>
