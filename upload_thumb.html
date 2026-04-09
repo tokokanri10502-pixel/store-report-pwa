@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>サムネイルアップロード</title>
+<title>ãµã ãã¤ã«ã¢ããã­ã¼ã</title>
 <style>
 body { font-family: sans-serif; max-width: 500px; margin: 60px auto; padding: 20px; }
 h2 { color: #1a56db; }
@@ -17,22 +17,22 @@ button:disabled { background: #9ca3af; cursor: not-allowed; }
 </style>
 </head>
 <body>
-<h2>📸 ロピア サムネイル差し替え</h2>
-<p><strong>page_1_lopia.jpg</strong> を選択してGitHubへアップロードします。</p>
+<h2>ð¸ ã­ãã¢ ãµã ãã¤ã«å·®ãæ¿ã</h2>
+<p><strong>page_1_lopia.jpg</strong> ãé¸æãã¦GitHubã¸ã¢ããã­ã¼ããã¾ãã</p>
 
 <div class="zone" onclick="document.getElementById('fi').click()">
-  クリックして画像を選択<br>
-  <small>（page_1_lopia.jpg を選んでください）</small>
+  ã¯ãªãã¯ãã¦ç»åãé¸æ<br>
+  <small>ï¼page_1_lopia.jpg ãé¸ãã§ãã ããï¼</small>
   <input type="file" id="fi" accept="image/*">
 </div>
 <img id="preview">
-<button id="btn" disabled onclick="upload()">▶ アップロード</button>
-<div id="log">ファイルを選択してください。</div>
+<button id="btn" disabled onclick="upload()">â¶ ã¢ããã­ã¼ã</button>
+<div id="log">ãã¡ã¤ã«ãé¸æãã¦ãã ããã</div>
 
 <script>
 const TOKEN = ["github_pat_11B64Z6OQ0u1yaYbug3EJs","_oVVVw77nPAe51CLvnbwSBrmdUW0AxHkVVRfItxEwwcxIVSLHFPPHC1Z81Na"].join("");
 const API = "https://api.github.com/repos/tokokanri10502-pixel/store-report-pwa/contents/";
-const SHA = "c8164b396507c9edff2fa849108b782d052a1c0a";
+const SHA = "e43db19d3ead2ddc246e7a850c0afbae677b9ac7";
 
 let _b64 = null;
 
@@ -44,7 +44,7 @@ function log(msg, cls) {
 document.getElementById('fi').onchange = function(e) {
   const file = e.target.files[0];
   if (!file) return;
-  document.getElementById('log').innerHTML = 'ファイル読み込み中...';
+  document.getElementById('log').innerHTML = 'ãã¡ã¤ã«èª­ã¿è¾¼ã¿ä¸­...';
   const reader = new FileReader();
   reader.onload = function(ev) {
     _b64 = ev.target.result.split(',')[1];
@@ -52,7 +52,7 @@ document.getElementById('fi').onchange = function(e) {
     prev.src = ev.target.result;
     prev.style.display = 'block';
     document.getElementById('btn').disabled = false;
-    log('✅ 準備完了: ' + file.name + ' (' + Math.round(file.size/1024) + 'KB, b64=' + _b64.length + '文字)', 'ok');
+    log('â æºåå®äº: ' + file.name + ' (' + Math.round(file.size/1024) + 'KB, b64=' + _b64.length + 'æå­)', 'ok');
   };
   reader.readAsDataURL(file);
 };
@@ -60,7 +60,7 @@ document.getElementById('fi').onchange = function(e) {
 async function upload() {
   if (!_b64) return;
   document.getElementById('btn').disabled = true;
-  log('\n⬆️ アップロード中...', 'info');
+  log('\nâ¬ï¸ ã¢ããã­ã¼ãä¸­...', 'info');
   try {
     const r = await fetch(API + "reports/202604-fujimura/page_1.jpg", {
       method: "PUT",
@@ -73,14 +73,14 @@ async function upload() {
     });
     const d = await r.json();
     if (d.commit) {
-      log('✅ 成功！ commit: ' + d.commit.sha.substring(0,12), 'ok');
-      log('🎉 GitHubに反映されました。数分後にサイトを確認してください。', 'ok');
+      log('â æåï¼ commit: ' + d.commit.sha.substring(0,12), 'ok');
+      log('ð GitHubã«åæ ããã¾ãããæ°åå¾ã«ãµã¤ããç¢ºèªãã¦ãã ããã', 'ok');
     } else {
-      log('❌ エラー: ' + JSON.stringify(d).substring(0,200), 'err');
+      log('â ã¨ã©ã¼: ' + JSON.stringify(d).substring(0,200), 'err');
       document.getElementById('btn').disabled = false;
     }
   } catch(err) {
-    log('❌ エラー: ' + err.message, 'err');
+    log('â ã¨ã©ã¼: ' + err.message, 'err');
     document.getElementById('btn').disabled = false;
   }
 }
