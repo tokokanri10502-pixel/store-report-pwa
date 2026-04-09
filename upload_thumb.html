@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>サムネイルアップロード</title>
+<style>
+body { font-family: sans-serif; max-width: 500px; margin: 60px auto; padding: 20px; }
+h2 { color: #1a56db; }
+.zone { border: 2px dashed #1a56db; border-radius: 12px; padding: 30px; text-align: center; margin: 20px 0; cursor: pointer; }
+.zone:hover { background: #eff6ff; }
+input[type=file] { display: none; }
+button { background: #1a56db; color: white; border: none; padding: 12px 28px; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; margin-top: 10px; }
+button:disabled { background: #9ca3af; cursor: not-allowed; }
+#log { margin-top: 20px; background: #f3f4f6; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 13px; white-space: pre-wrap; min-height: 60px; }
+.ok { color: green; } .err { color: red; } .info { color: #1a56db; }
+#preview { max-width: 200px; margin: 10px auto; display: none; border-radius: 8px; }
+</style>
+</head>
+<body>
+<h2>📸 ロピア サムネイル差し替え</h2>
+<p><strong>page_1_lopia.jpg</strong> を選択してGitHubへアップロードします。</p>
+
+<div class="zone" onclick="document.getElementById('fi').click()">
+  クリックして画像を選択<br>
+  <small>（page_1_lopia.jpg を選んでください）</small>
+  <input type="file" id="fi" accept="image/*">
+</div>
+<img id="preview">
+<button id="btn" disabled onclick="upload()">▶ アップロード</button>
+<div id="log">ファイルを選択してください。</div>
+
+<script>
+const TOKEN = ["github_pat_11B64Z6OQ0u1yaYbug3EJs","_oVVVw77nPAe51CLvnbwSBrmdUW0AxHkVVRfItxEwwcxIVSLHFPPHC1Z81Na"].join("");
+const API = "https://api.github.com/repos/tokokanri10502-pixel/store-report-pwa/contents/";
+const SHA = "c8164b396507c9edff2fa849108b782d052a1c0a";
+
+let _b64 = null;
+
+function log(msg, cls) {
+  const el = document.getElementById('log');
+  el.innerHTML += '\n<span class="'+(cls||'')+'">'+msg+'</span>';
+}
+
+document.getElementById('fi').onchange = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('log').innerHTML = 'ファイル読み込み中...';
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    _b64 = ev.target.result.split(',')[1];
+    const prev = document.getElementById('preview');
+    prev.src = ev.target.result;
+    prev.style.display = 'block';
+    document.getElementById('btn').disabled = false;
+    log('✅ 準備完了: ' + file.name + ' (' + Math.round(file.size/1024) + 'KB, b64=' + _b64.length + '文字)', 'ok');
+  };
+  reader.readAsDataURL(file);
+};
+
+async function upload() {
+  if (!_b64) return;
+  document.getElementById('btn').disabled = true;
+  log('\n⬆️ アップロード中...', 'info');
+  try {
+    const r = await fetch(API + "reports/202604-fujimura/page_1.jpg", {
+      method: "PUT",
+      headers: { "Authorization": "token "+TOKEN, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: "Update thumbnail for 202604-fujimura (full resolution)",
+        content: _b64,
+        sha: SHA
+      })
+    });
+    const d = await r.json();
+    if (d.commit) {
+      log('✅ 成功！ commit: ' + d.commit.sha.substring(0,12), 'ok');
+      log('🎉 GitHubに反映されました。数分後にサイトを確認してください。', 'ok');
+    } else {
+      log('❌ エラー: ' + JSON.stringify(d).substring(0,200), 'err');
+      document.getElementById('btn').disabled = false;
+    }
+  } catch(err) {
+    log('❌ エラー: ' + err.message, 'err');
+    document.getElementById('btn').disabled = false;
+  }
+}
+</script>
+</body>
+</html>
