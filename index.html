@@ -663,7 +663,7 @@ function renderReportCards() {
       : `showReport('${r.id}')`;
     const storeCountLabel = matchedStore
       ? `<span style="color:#7c3aed;font-weight:700">🏪 ${matchedStore.name}</span>`
-      : `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V6h16v12z"/></svg>${r.stores.length}店舗`;
+      : `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V6h16v12z"/></svg>${r.storeCount ?? r.stores.length}店舗`;
 
     if (show) visibleCount++;
     html += `
