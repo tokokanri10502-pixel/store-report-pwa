@@ -17,22 +17,30 @@ button:disabled { background: #9ca3af; cursor: not-allowed; }
 </style>
 </head>
 <body>
-<h2>📸 ロピア サムネイル差し替え</h2>
-<p><strong>page_1_lopia.jpg</strong> を選択してGitHubへアップロードします。</p>
-
+<h2>📸 山口レポート サムネイルアップロード</h2>
+<p><strong>lopia0403_thumb.jpg</strong> を選択してGitHubへアップロードします。</p>
+<p style="color:#666;font-size:13px;">対象: reports/202604-yamaguchi/page_1.jpg（新規作成）</p>
+<div style="margin-bottom:12px;">
+  <label style="font-size:13px;font-weight:bold;">🔑 GitHub Token</label><br>
+  <input id="tokenInput" type="password" placeholder="ghp_xxxxxxxxxxxxxx" style="width:100%;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;font-size:13px;">
+</div>
 <div class="zone" onclick="document.getElementById('fi').click()">
   クリックして画像を選択<br>
-  <small>（page_1_lopia.jpg を選んでください）</small>
+  <small>（lopia0403_thumb.jpg を選んでください）</small>
   <input type="file" id="fi" accept="image/*">
 </div>
 <img id="preview">
 <button id="btn" disabled onclick="upload()">▶ アップロード</button>
-<div id="log">ファイルを選択してください。</div>
+<div id="log">トークンを入力してファイルを選択してください。</div>
 
 <script>
-const TOKEN = ["github_pat_11B64Z6OQ0u1yaYbug3EJs","_oVVVw77nPAe51CLvnbwSBrmdUW0AxHkVVRfItxEwwcxIVSLHFPPHC1Z81Na"].join("");
+function getToken() {
+  const t = document.getElementById('tokenInput').value.trim();
+  if (!t) { alert('GitHubトークンを入力してください'); return null; }
+  return t;
+}
 const API = "https://api.github.com/repos/tokokanri10502-pixel/store-report-pwa/contents/";
-const SHA = "840ff0653614a59358202e0038d59230fb7822fc";
+const TARGET = "reports/202604-yamaguchi/page_1.jpg";
 
 let _b64 = null;
 
@@ -58,18 +66,27 @@ document.getElementById('fi').onchange = function(e) {
 };
 
 async function upload() {
+  const TOKEN = getToken(); if (!TOKEN) return;
   if (!_b64) return;
   document.getElementById('btn').disabled = true;
   log('\n⬆️ アップロード中...', 'info');
   try {
-    const r = await fetch(API + "reports/202604-kuwahara/page_1.jpg", {
+    // 新規ファイルのため、まずSHAを確認（既存ならSHAを取得）
+    const checkRes = await fetch(API + TARGET, {
+      headers: { "Authorization": "token "+TOKEN }
+    });
+    let body = { message: "Add thumbnail for 202604-yamaguchi", content: _b64 };
+    if (checkRes.ok) {
+      const checkData = await checkRes.json();
+      body.sha = checkData.sha;
+      log('既存ファイルを上書き (SHA: ' + checkData.sha.substring(0,12) + ')', 'info');
+    } else {
+      log('新規ファイルとして作成します', 'info');
+    }
+    const r = await fetch(API + TARGET, {
       method: "PUT",
       headers: { "Authorization": "token "+TOKEN, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: "Fix thumbnail for 202604-kuwahara",
-        content: _b64,
-        sha: SHA
-      })
+      body: JSON.stringify(body)
     });
     const d = await r.json();
     if (d.commit) {
