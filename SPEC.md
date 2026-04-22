@@ -4,6 +4,30 @@
 
 ---
 
+## 0. 画像だけ差し替えたい場合
+
+JSONデータは変えず、画像ファイルのみ高解像度に置き換えるケース。
+
+```python
+import pypdfium2 as pdfium
+from pathlib import Path
+
+pdf_path = Path("C:/Users/.../差替え用.pdf")
+out_dir  = Path("reports/対象ID/")   # 既存フォルダを上書き
+
+pdf = pdfium.PdfDocument(str(pdf_path))
+for i in range(len(pdf)):
+    bm  = pdf[i].render(scale=2.0)
+    img = bm.to_pil()
+    img.save(str(out_dir / f"page_{i+1}.jpg"), "JPEG", quality=82)
+pdf.close()
+```
+
+その後 `Documents/GitHub/` 側にも同じファイルをコピーして GitHub Desktop でプッシュ。
+**JSON・JSファイルの変更は不要。**
+
+---
+
 ## 1. 事前確認（毎回やること）
 
 ```
