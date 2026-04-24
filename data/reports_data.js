@@ -396,7 +396,7 @@ window.REPORTS_DATA = [
     "title": "関東（千葉・東京・茨城）出張報告書",
     "date": "2026-01-20",
     "dateLabel": "2026年1月20日",
-    "author": "段野有希",
+    "author": "段野 有希",
     "department": "デザインD課",
     "area": "関東（千葉・東京・茨城）",
     "summaryPage": 1,
